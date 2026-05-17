@@ -73,7 +73,11 @@ const profileSchema = new mongoose.Schema({
   nationality: String,
   bloodGroup: String,
   medicalConditions: String,
-  allergies: String
+  allergies: String,
+  isStudent: Boolean,
+  universityName: String,
+  isWorking: Boolean,
+  organizationName: String
 }, { timestamps: true });
 
 const contactSchema = new mongoose.Schema({
@@ -615,7 +619,11 @@ app.get('/profile', async (req, res) => {
           nationality: row.nationality,
           bloodGroup: row.bloodGroup,
           medicalConditions: row.medicalConditions,
-          allergies: row.allergies
+          allergies: row.allergies,
+          isStudent: row.isStudent,
+          universityName: row.universityName,
+          isWorking: row.isWorking,
+          organizationName: row.organizationName
         }
       });
     }
@@ -627,7 +635,7 @@ app.get('/profile', async (req, res) => {
 });
 
 app.post('/profile', async (req, res) => {
-  const { email, fullName, phoneNumber, passport, documentType, nationality, bloodGroup, medicalConditions, allergies } = req.body;
+  const { email, fullName, phoneNumber, passport, documentType, nationality, bloodGroup, medicalConditions, allergies, isStudent, universityName, isWorking, organizationName } = req.body;
   console.log('PROFILE BODY:', req.body);
   try {
     if (passport) {
@@ -637,7 +645,7 @@ app.post('/profile', async (req, res) => {
     }
     await Profile.findOneAndUpdate(
       { email },
-      { email, fullName, phoneNumber, passport, documentType, nationality, bloodGroup, medicalConditions, allergies },
+      { email, fullName, phoneNumber, passport, documentType, nationality, bloodGroup, medicalConditions, allergies, isStudent, universityName, isWorking, organizationName },
       { upsert: true }
     );
     return res.json({ success: true });

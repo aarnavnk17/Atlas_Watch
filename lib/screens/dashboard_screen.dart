@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geocoding/geocoding.dart';
 import '../models/risk_level.dart';
-import '../data/city_coordinates.dart';
 import '../services/session_service.dart';
 import '../services/location_service.dart';
 import '../services/crime_service.dart';
@@ -63,55 +61,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) setState(() => _userName = displayName);
   }
 
-  Future<void> _simulateLocation(String customLocation) async {
-    if (customLocation.isEmpty) return;
-
-    setState(() {
-      _loadingLocation = true;
-      _locationName = customLocation;
-    });
-
-    // Local lookup first, then geocoding
-    LatLng? resolved = CityCoordinates.get(customLocation);
-    if (resolved == null) {
-      try {
-        final locs = await locationFromAddress(customLocation);
-        if (locs.isNotEmpty) {
-          resolved = LatLng(locs.first.latitude, locs.first.longitude);
-        }
-      } catch (e) {
-        debugPrint('Geocoding error: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not find coordinates for: $customLocation')),
-          );
-        }
-      }
-    }
-
-    if (resolved != null) setState(() => _currentLatLng = resolved!);
-
-    final crimeService = CrimeService();
-    final riskService = RiskService();
-
-    // Use coordinate-based score if possible
-    int score = 0;
-    if (_currentLatLng.latitude != 0) {
-      score = await crimeService.fetchCrimeScoreByLocation(
-          _currentLatLng.latitude, _currentLatLng.longitude);
-    }
-
-    // Fallback to name-based score if coord search yielded nothing
-    if (score == 0) {
-      score = await crimeService.fetchCrimeScore(customLocation);
-    }
-
-    if (!mounted) return;
-    setState(() {
-      _riskLevel = riskService.calculateRisk(score);
-      _loadingLocation = false;
-    });
-  }
 
   Future<void> _fetchLocationAndRisk() async {
     try {
@@ -317,12 +266,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 32),
 
-              // ── Dev Tools ────────────────────────────────────
-              SleekAnimation(
-                delay: const Duration(milliseconds: 1100),
-                child: _buildDevTools(),
-              ),
-              const SizedBox(height: 32),
+
             ],
           ),
         ),
@@ -514,64 +458,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDevTools() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E).withOpacity(0.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ExpansionTile(
-        title: const Text('Developer Options',
-            style: TextStyle(color: Colors.grey, fontSize: 13)),
-        iconColor: Colors.grey,
-        collapsedIconColor: Colors.grey,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _locationController,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: 'Enter city (testing)',
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          isDense: true, filled: true,
-                          fillColor: const Color(0xFF2C2C2C),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () => _simulateLocation(_locationController.text),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Simulate'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextButton.icon(
-                  onPressed: _logout,
-                  icon: const Icon(Icons.logout, color: Colors.redAccent, size: 18),
-                  label: const Text('Sign Out',
-                      style: TextStyle(color: Colors.redAccent)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 }

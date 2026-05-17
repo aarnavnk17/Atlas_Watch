@@ -124,6 +124,10 @@ class SessionService {
     String? bloodGroup,
     String? medicalConditions,
     String? allergies,
+    bool? isStudent,
+    String? universityName,
+    bool? isWorking,
+    String? organizationName,
   }) async {
     final email = await getEmail();
     if (email == null) return false;
@@ -142,6 +146,10 @@ class SessionService {
           'bloodGroup': bloodGroup,
           'medicalConditions': medicalConditions,
           'allergies': allergies,
+          'isStudent': isStudent,
+          'universityName': universityName,
+          'isWorking': isWorking,
+          'organizationName': organizationName,
         }),
       );
 

@@ -22,6 +22,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _medicalConditionsController = TextEditingController();
   final _allergiesController = TextEditingController();
 
+  final _universityController = TextEditingController();
+  final _organizationController = TextEditingController();
+  String _status = 'Other'; // 'Student', 'Working', 'Other'
+
   String? _selectedBloodGroup;
   final List<String> _bloodGroups = [
     'A+',
@@ -31,7 +35,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     'AB+',
     'AB-',
     'O+',
-    'O-'
+    'O-',
+    'A1+',
+    'A1-',
+    'A2+',
+    'A2-',
+    'A1B+',
+    'A1B-',
+    'A2B+',
+    'A2B-',
+    'Bombay (Oh)',
+    'Rh-null',
+    'Unknown'
   ];
 
   final SessionService _session = SessionService();
@@ -41,6 +56,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   void initState() {
     super.initState();
     _initialize();
+  }
+
+  @override
+  void dispose() {
+    _universityController.dispose();
+    _organizationController.dispose();
+    super.dispose();
   }
 
   Future<void> _initialize() async {
@@ -56,6 +78,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         _medicalConditionsController.text = profile['medicalConditions'] ?? '';
         _allergiesController.text = profile['allergies'] ?? '';
         _selectedBloodGroup = profile['bloodGroup'];
+
+        final isStudent = profile['isStudent'] ?? false;
+        final isWorking = profile['isWorking'] ?? false;
+        if (isStudent) {
+          _status = 'Student';
+          _universityController.text = profile['universityName'] ?? '';
+        } else if (isWorking) {
+          _status = 'Working';
+          _organizationController.text = profile['organizationName'] ?? '';
+        } else {
+          _status = 'Other';
+        }
       }
     } catch (e) {
       debugPrint("ProfileSetup Error: $e");
@@ -77,6 +111,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       bloodGroup: _selectedBloodGroup,
       medicalConditions: _medicalConditionsController.text.trim(),
       allergies: _allergiesController.text.trim(),
+      isStudent: _status == 'Student',
+      universityName: _status == 'Student' ? _universityController.text.trim() : null,
+      isWorking: _status == 'Working',
+      organizationName: _status == 'Working' ? _organizationController.text.trim() : null,
     );
 
     if (!mounted) return;
@@ -204,9 +242,47 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             ),
             const SizedBox(height: 24),
 
-            // --- MEDICAL INFO CARD (HIGH VISIBILITY) ---
+            // --- ACADEMIC & PROFESSIONAL CARD ---
             SleekAnimation(
               delay: const Duration(milliseconds: 700),
+              type: SleekAnimationType.slide,
+              child: _buildSectionCard(
+                title: 'Academic & Professional Status',
+                icon: Icons.work_outline,
+                color: Colors.amber.shade400,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: _status,
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                    dropdownColor: const Color(0xFF2C2C2C),
+                    decoration: _inputDecoration('Current Status', Icons.school_outlined),
+                    items: ['Student', 'Working', 'Other'].map((status) {
+                      return DropdownMenuItem(value: status, child: Text(status));
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          _status = val;
+                        });
+                      }
+                    },
+                    iconEnabledColor: Colors.amber.shade400,
+                  ),
+                  if (_status == 'Student') ...[
+                    const SizedBox(height: 16),
+                    _buildTextField(_universityController, 'University Name', Icons.account_balance_outlined),
+                  ] else if (_status == 'Working') ...[
+                    const SizedBox(height: 16),
+                    _buildTextField(_organizationController, 'Organisation Name', Icons.business_outlined),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // --- MEDICAL INFO CARD (HIGH VISIBILITY) ---
+            SleekAnimation(
+              delay: const Duration(milliseconds: 900),
               type: SleekAnimationType.slide,
               child: _buildSectionCard(
                 title: 'Emergency Medical Data',
@@ -236,7 +312,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
             // --- SAVE BUTTON ---
             SleekAnimation(
-              delay: const Duration(milliseconds: 900),
+              delay: const Duration(milliseconds: 1100),
               slideOffset: const Offset(0, 0.1),
               type: SleekAnimationType.slide,
               child: SizedBox(

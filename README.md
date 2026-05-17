@@ -47,13 +47,13 @@ AtlasWatch is built as a robust full-stack solution:
 
 ```mermaid
 graph TD
-    subgraph "Mobile Client (Flutter)"
+    subgraph client ["Mobile Client (Flutter)"]
         UI[Sleek UI / Animations] --> LC[Location & Map Services]
         UI --> SS[Session & Local Cache]
         UI --> SC[SOS Controller]
     end
 
-    subgraph "Backend Server (Node.js & Express)"
+    subgraph server ["Backend Server (Node.js & Express)"]
         API[Express Router] --> AN[AI Danger Anomaly Engine]
         API --> DB[Mongoose / MongoDB Database]
     end

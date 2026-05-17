@@ -485,8 +485,8 @@ app.post('/sos/resolve', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success: false, message: 'Email required' });
   try {
-    await SosAlert.updateMany({ email, status: 'active' }, { $set: { status: 'resolved' } });
-    await User.updateOne({ email }, { $set: { "lastLocation.sos": false } });
+    await SosAlert.updateMany({ email: { $regex: new RegExp("^" + email + "$", "i") }, status: 'active' }, { $set: { status: 'resolved' } });
+    await User.updateOne({ email: { $regex: new RegExp("^" + email + "$", "i") } }, { $set: { "lastLocation.sos": false } });
     console.log(`✅ SOS RESOLVED via mobile app for user: ${email}`);
     return res.json({ success: true });
   } catch (err) {
@@ -829,7 +829,7 @@ app.delete('/journey', async (req, res) => {
   const userEmail = req.body.email || req.query.email;
   if (!userEmail) return res.status(400).json({ success: false, message: 'Email required' });
   try {
-    await User.updateOne({ email: userEmail }, { $set: { active_journey: null } });
+    await User.updateOne({ email: { $regex: new RegExp("^" + userEmail + "$", "i") } }, { $set: { active_journey: null } });
     return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

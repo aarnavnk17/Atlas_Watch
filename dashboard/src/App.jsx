@@ -43,9 +43,9 @@ function App() {
     try {
       // Fetch datasets in parallel from the dynamic Express host server
       const [profileRes, sosRes, anomalyRes] = await Promise.all([
-        fetch(`${API_BASE}/admin/profiles`),
-        fetch(`${API_BASE}/sos/alerts`),
-        fetch(`${API_BASE}/anomaly-log`)
+        fetch(`${API_BASE}/admin/profiles?_t=${Date.now()}`),
+        fetch(`${API_BASE}/sos/alerts?_t=${Date.now()}`),
+        fetch(`${API_BASE}/anomaly-log?_t=${Date.now()}`)
       ]);
 
       if (profileRes.ok && sosRes.ok && anomalyRes.ok) {

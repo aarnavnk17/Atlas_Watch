@@ -93,7 +93,6 @@ class _JourneyScreenState extends State<JourneyScreen> {
 
   @override
   void dispose() {
-    _trackingService.stopTracking();
     _journeyService.endJourney();
     super.dispose();
   }
@@ -576,7 +575,6 @@ class _JourneyScreenState extends State<JourneyScreen> {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context); // Pop dialog
-                              _trackingService.stopTracking();
                               _journeyService.endJourney();
                               Navigator.pop(context); // Pop screen back to dashboard
                             },
@@ -591,7 +589,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     );
                   },
                   icon: const Icon(Icons.cancel_outlined, color: Colors.white),
-                  label: const Text('END JOURNEY & TRACKING', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                  label: const Text('END JOURNEY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFDC2626),
                     minimumSize: const Size(double.infinity, 50),

@@ -55,7 +55,7 @@ function App() {
 
         // Check if database contains actual records
         const activeProfiles = profileData.success ? (Array.isArray(profileData.profiles) ? profileData.profiles : [profileData.profiles].filter(Boolean)) : [];
-        const activeAlerts = sosData.alerts || [];
+        const activeAlerts = (sosData.alerts || []).filter(a => a.status !== 'resolved');
         const activeAnomalies = anomalyData.logs || [];
 
         setProfiles(activeProfiles);
@@ -77,18 +77,15 @@ function App() {
 
   const calculateStats = (pList, aList, anomList) => {
     const totalUsers = pList.length;
-    const activeSosCount = aList.filter(a => {
-      // Calculate alerts within last 12 hours as active for display
-      const alertTime = new Date(a.timestamp).getTime();
-      return Date.now() - alertTime < 12 * 60 * 60000;
-    }).length;
+    const activeSosCount = aList.length;
+    const activeJourneys = pList.filter(p => p.activeJourney !== null && p.activeJourney !== undefined).length;
     
     // Mitigations are calculated as the number of anomalies flag detections
     const threatsMitigated = anomList.filter(anom => anom.anomaly_flag).length;
 
     setStats({
       totalUsers: totalUsers,
-      activeJourneys: activeSosCount,
+      activeJourneys: activeJourneys,
       threatsMitigated: threatsMitigated,
       activeSosCount: activeSosCount
     });

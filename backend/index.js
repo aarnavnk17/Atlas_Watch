@@ -471,9 +471,26 @@ app.get('/sos/alerts', async (req, res) => {
 
 app.post('/sos/:id/resolve', async (req, res) => {
   try {
-    await SosAlert.updateOne({ _id: req.params.id }, { $set: { status: 'resolved' } });
+    const alert = await SosAlert.findOneAndUpdate({ _id: req.params.id }, { $set: { status: 'resolved' } }, { new: true }).lean();
+    if (alert) {
+      await User.updateOne({ email: alert.email }, { $set: { "lastLocation.sos": false } });
+    }
     return res.json({ success: true });
   } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/sos/resolve', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ success: false, message: 'Email required' });
+  try {
+    await SosAlert.updateMany({ email, status: 'active' }, { $set: { status: 'resolved' } });
+    await User.updateOne({ email }, { $set: { "lastLocation.sos": false } });
+    console.log(`✅ SOS RESOLVED via mobile app for user: ${email}`);
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('SOS Resolve by email error:', err.message);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -625,6 +642,8 @@ app.get('/admin/profiles', async (req, res) => {
         isWorking: profile.isWorking || false,
         organizationName: profile.organizationName || '',
         profileCompleted: user.profile_completed || false,
+        lastLocation: user.lastLocation || null,
+        activeJourney: user.active_journey || null,
         createdAt: user.createdAt
       };
     });

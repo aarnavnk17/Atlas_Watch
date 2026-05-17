@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import '../services/backend_service.dart';
+import '../services/session_service.dart';
 import '../widgets/sleek_animation.dart';
 
 class SosActiveScreen extends StatefulWidget {
@@ -149,11 +152,26 @@ class _SosActiveScreenState extends State<SosActiveScreen> {
                           elevation: 10,
                           shadowColor: Colors.black45,
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           if (widget.playSiren) {
                             FlutterRingtonePlayer().stop();
                           }
-                          Navigator.popUntil(context, (route) => route.isFirst);
+                          try {
+                            final session = SessionService();
+                            final email = await session.getEmail();
+                            if (email != null) {
+                              await BackendService.post(
+                                '/sos/resolve',
+                                headers: {'Content-Type': 'application/json'},
+                                body: json.encode({'email': email}),
+                              );
+                            }
+                          } catch (e) {
+                            debugPrint('Failed to resolve SOS on backend: $e');
+                          }
+                          if (mounted) {
+                            Navigator.popUntil(context, (route) => route.isFirst);
+                          }
                         },
                         child: const Text(
                           "I'M NOW SAFE",

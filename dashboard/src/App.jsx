@@ -43,7 +43,7 @@ function App() {
     try {
       // Fetch datasets in parallel from the dynamic Express host server
       const [profileRes, sosRes, anomalyRes] = await Promise.all([
-        fetch(`${API_BASE}/profile`),
+        fetch(`${API_BASE}/admin/profiles`),
         fetch(`${API_BASE}/sos/alerts`),
         fetch(`${API_BASE}/anomaly-log`)
       ]);
@@ -440,6 +440,103 @@ function App() {
               <span style={{ fontWeight: '600' }}>{otherDocsPercentage}%</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ==========================================
+          REGISTERED CITIZENS & MEDICAL DIRECTORY
+          ========================================== */}
+      <section className="glass-panel" style={{ padding: '32px', marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <UserCheck size={20} color="var(--color-success)" />
+            <h3 style={{ fontSize: '18px', fontWeight: '800' }}>Active Shield Citizens Directory</h3>
+          </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '4px' }}>Registered database profiles, emergency contacts, identity papers, and critical responder medical sheets</p>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px' }}>
+                <th style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', padding: '12px 8px' }}>Citizen Info</th>
+                <th style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', padding: '12px 8px' }}>Role / Organisation</th>
+                <th style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', padding: '12px 8px' }}>Blood Group</th>
+                <th style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', padding: '12px 8px' }}>Allergies & Medical Conditions</th>
+                <th style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', padding: '12px 8px' }}>Secure ID / Passport</th>
+              </tr>
+            </thead>
+            <tbody>
+              {profiles.map((p, idx) => (
+                <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', hover: { background: 'rgba(255,255,255,0.01)' } }}>
+                  <td style={{ padding: '16px 8px' }}>
+                    <div style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-primary)' }}>{p.fullName || 'Unnamed User'}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{p.email}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{p.phoneNumber || 'No phone registered'} // {p.nationality || 'Unknown nationality'}</div>
+                  </td>
+                  <td style={{ padding: '16px 8px' }}>
+                    {p.isStudent ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span className="badge badge-primary" style={{ alignSelf: 'flex-start', fontSize: '10px' }}>Student</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{p.universityName || 'Not Declared'}</span>
+                      </div>
+                    ) : p.isWorking ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span className="badge badge-success" style={{ alignSelf: 'flex-start', fontSize: '10px' }}>Professional</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{p.organizationName || 'Not Declared'}</span>
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Not Declared</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '16px 8px' }}>
+                    <span style={{ 
+                      display: 'inline-block',
+                      padding: '4px 10px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      border: p.bloodGroup ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+                      background: p.bloodGroup ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                      color: p.bloodGroup ? 'var(--color-danger)' : 'var(--text-muted)'
+                    }}>
+                      {p.bloodGroup || 'UNKNOWN'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '16px 8px', fontSize: '13px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {p.allergies ? (
+                        <div>⚠️ <span style={{ color: 'var(--color-warning)', fontWeight: '600' }}>Allergies:</span> {p.allergies}</div>
+                      ) : null}
+                      {p.medicalConditions ? (
+                        <div>🩺 <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>Conditions:</span> {p.medicalConditions}</div>
+                      ) : null}
+                      {!p.allergies && !p.medicalConditions ? (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>None declared / Secure</span>
+                      ) : null}
+                    </div>
+                  </td>
+                  <td style={{ padding: '16px 8px' }}>
+                    {p.documentType ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)' }}>{p.documentType}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{p.passport || 'No Document Number'}</span>
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No Document</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {profiles.length === 0 && (
+                <tr>
+                  <td colSpan="5" style={{ padding: '40px', textItems: 'center', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+                    🔒 No registered citizens stored in MongoDB.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>

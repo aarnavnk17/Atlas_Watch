@@ -601,6 +601,19 @@ app.post('/login', async (req, res) => {
 });
 
 // ============================
+// ALL PROFILES (ADMIN/DASHBOARD COHORT)
+// ============================
+app.get('/admin/profiles', async (req, res) => {
+  try {
+    const rows = await Profile.find({}).sort({ createdAt: -1 }).lean();
+    return res.json({ success: true, profiles: rows });
+  } catch (err) {
+    console.error('All profiles GET error:', err.message);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ============================
 // PROFILE
 // ============================
 app.get('/profile', async (req, res) => {

@@ -605,13 +605,37 @@ app.post('/login', async (req, res) => {
 // ============================
 app.get('/admin/profiles', async (req, res) => {
   try {
-    const rows = await Profile.find({}).sort({ createdAt: -1 }).lean();
-    return res.json({ success: true, profiles: rows });
+    const users = await User.find({}).sort({ createdAt: -1 }).lean();
+    const profiles = await Profile.find({}).lean();
+
+    const merged = users.map(user => {
+      const profile = profiles.find(p => p.email.toLowerCase() === user.email.toLowerCase()) || {};
+      return {
+        email: user.email,
+        fullName: profile.fullName || 'New Shield Member',
+        phoneNumber: profile.phoneNumber || 'Pending profile setup',
+        passport: profile.passport || '',
+        documentType: profile.documentType || '',
+        nationality: profile.nationality || '',
+        bloodGroup: profile.bloodGroup || '',
+        medicalConditions: profile.medicalConditions || '',
+        allergies: profile.allergies || '',
+        isStudent: profile.isStudent || false,
+        universityName: profile.universityName || '',
+        isWorking: profile.isWorking || false,
+        organizationName: profile.organizationName || '',
+        profileCompleted: user.profile_completed || false,
+        createdAt: user.createdAt
+      };
+    });
+
+    return res.json({ success: true, profiles: merged });
   } catch (err) {
     console.error('All profiles GET error:', err.message);
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
+
 
 // ============================
 // PROFILE

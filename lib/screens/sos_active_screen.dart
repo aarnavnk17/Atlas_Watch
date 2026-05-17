@@ -1,0 +1,196 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import '../services/backend_service.dart';
+import '../services/session_service.dart';
+import '../widgets/sleek_animation.dart';
+
+class SosActiveScreen extends StatefulWidget {
+  final bool playSiren;
+  final bool aiTriggered;
+  final int? aiDangerScore;
+
+  const SosActiveScreen({
+    super.key,
+    this.playSiren = false,
+    this.aiTriggered = false,
+    this.aiDangerScore,
+  });
+
+  @override
+  State<SosActiveScreen> createState() => _SosActiveScreenState();
+}
+
+class _SosActiveScreenState extends State<SosActiveScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.playSiren) {
+      try {
+        FlutterRingtonePlayer().play(
+          android: AndroidSounds.ringtone,
+          ios: IosSounds.alarm,
+          looping: true,
+          volume: 1.0,
+          asAlarm: true, // This forces sound even if phone is on silent
+        );
+      } catch (e) {
+        debugPrint('Error playing siren sound: $e');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.playSiren) {
+      FlutterRingtonePlayer().stop();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // --- ACTIVE PULSE ---
+              SleekAnimation(
+                delay: const Duration(milliseconds: 200),
+                type: SleekAnimationType.scale,
+                child: Container(
+                  padding: const EdgeInsets.all(40),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.emergency_rounded, size: 100, color: Colors.redAccent),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 48),
+
+              SleekAnimation(
+                delay: const Duration(milliseconds: 400),
+                child: Column(
+                  children: [
+                    const Text(
+                      'SOS IS ACTIVE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    if (widget.aiTriggered) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.auto_awesome, color: Colors.redAccent, size: 14),
+                            const SizedBox(width: 6),
+                            Text(
+                              widget.aiDangerScore != null
+                                  ? 'AI AUTO-TRIGGERED · SCORE ${widget.aiDangerScore}/100'
+                                  : 'AI AUTO-TRIGGERED',
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Your live location and medical profile\nare being shared with your emergency\ncontacts and local authorities.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey, fontSize: 16, height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // --- SAFE BUTTON ---
+              SleekAnimation(
+                delay: const Duration(milliseconds: 600),
+                type: SleekAnimationType.slide,
+                slideOffset: const Offset(0, 0.1),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 64,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: 10,
+                          shadowColor: Colors.black45,
+                        ),
+                        onPressed: () async {
+                          if (widget.playSiren) {
+                            FlutterRingtonePlayer().stop();
+                          }
+                          try {
+                            final session = SessionService();
+                            final email = await session.getEmail();
+                            if (email != null) {
+                              await BackendService.post(
+                                '/sos/resolve',
+                                headers: {'Content-Type': 'application/json'},
+                                body: json.encode({'email': email}),
+                              );
+                            }
+                          } catch (e) {
+                            debugPrint('Failed to resolve SOS on backend: $e');
+                          }
+                          if (mounted) {
+                            Navigator.popUntil(context, (route) => route.isFirst);
+                          }
+                        },
+                        child: const Text(
+                          "I'M NOW SAFE",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Press only after securing yourself.',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

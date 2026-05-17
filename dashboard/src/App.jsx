@@ -44,9 +44,7 @@ const MOCK_ALERTS = [
 // ==========================================
 // DYNAMIC SERVER HOST RESOLUTION (DEPLOY COMPATIBLE)
 // ==========================================
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000'
-  : 'https://atlaswatch-backend.onrender.com'; // Replace with your production Render/Railway URL when deployed
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function App() {
   const [isLive, setIsLive] = useState(false);

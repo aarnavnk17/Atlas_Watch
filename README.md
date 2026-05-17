@@ -44,24 +44,7 @@ At the heart of AtlasWatch is a backend intelligence system that constantly eval
 ## 🛠️ System Architecture
 
 AtlasWatch is built as a robust full-stack solution:
-
-```mermaid
-graph TD
-    subgraph client ["Mobile Client (Flutter)"]
-        UI[Sleek UI / Animations] --> LC[Location & Map Services]
-        UI --> SS[Session & Local Cache]
-        UI --> SC[SOS Controller]
-    end
-
-    subgraph server ["Backend Server (Node.js & Express)"]
-        API[Express Router] --> AN[AI Danger Anomaly Engine]
-        API --> DB[Mongoose / MongoDB Database]
-    end
-
-    LC -->|Live Location Sync| API
-    SS -->|Profile & Auth Sync| API
-    SC -->|SMS Distress Beacon| Contacts[Trusted Contact Carrier]
-```
+![System Architecture](architecture.png)
 
 ### Technical Stack:
 * **Frontend:** Flutter (Dart) utilizing premium responsive layouts, cascading fluid entrance animations, and standard mapping APIs (OpenStreetMap).

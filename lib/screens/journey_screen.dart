@@ -557,6 +557,48 @@ class _JourneyScreenState extends State<JourneyScreen> {
                     _legendDot(Colors.red, 'High-Risk'),
                   ]),
                 ],
+
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: const Color(0xFF1E1E1E),
+                        title: const Text('End Journey?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        content: const Text('This will stop real-time location telemetry tracking and close the dynamic geofencing safety shield.', style: TextStyle(color: Colors.white70)),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context); // Pop dialog
+                              _trackingService.stopTracking();
+                              _journeyService.endJourney();
+                              Navigator.pop(context); // Pop screen back to dashboard
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('End Journey', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.cancel_outlined, color: Colors.white),
+                  label: const Text('END JOURNEY & TRACKING', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFDC2626),
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 4,
+                  ),
+                ),
               ],
             ),
           ),

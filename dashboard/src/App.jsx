@@ -19,29 +19,6 @@ import {
 import './App.css';
 
 // ==========================================
-// HIGH-FIDELITY PRE-SEEDED PRESENTATION DATA
-// ==========================================
-const MOCK_PROFILES = [
-  { email: 'sarah.k@stanford.edu', fullName: 'Sarah Jenkins', phoneNumber: '+1 (555) 019-2834', documentType: 'Passport', passport: 'US9827364', nationality: 'United States', isStudent: true, universityName: 'Stanford University', isWorking: false, organizationName: '', bloodGroup: 'O+', allergies: 'Peanuts', medicalConditions: 'Asthma' },
-  { email: 'alex.chen@google.com', fullName: 'Alex Chen', phoneNumber: '+1 (555) 438-1290', documentType: 'National ID', passport: 'ID-882736', nationality: 'Canada', isStudent: false, universityName: '', isWorking: true, organizationName: 'Google LLC', bloodGroup: 'A-', allergies: 'Penicillin', medicalConditions: 'None' },
-  { email: 'priya.n@mit.edu', fullName: 'Priya Nair', phoneNumber: '+91 98450 12345', documentType: 'Passport', passport: 'IN-K837482', nationality: 'India', isStudent: true, universityName: 'Massachusetts Institute of Technology', isWorking: false, organizationName: '', bloodGroup: 'B+', allergies: 'Dust', medicalConditions: 'None' },
-  { email: 'm.schmidt@goldman.com', fullName: 'Marcus Schmidt', phoneNumber: '+49 172 883928', documentType: 'Driver License', passport: 'DL-DE92837', nationality: 'Germany', isStudent: false, universityName: '', isWorking: true, organizationName: 'Goldman Sachs', bloodGroup: 'AB+', allergies: 'Shellfish', medicalConditions: 'Penicillin sensitivity' },
-  { email: 'elena.rodriguez@oxford.ac.uk', fullName: 'Elena Rodriguez', phoneNumber: '+44 7911 123456', documentType: 'Passport', passport: 'UK-P88374', nationality: 'United Kingdom', isStudent: true, universityName: 'Oxford University', isWorking: false, organizationName: '', bloodGroup: 'Bombay (Oh)', allergies: 'None', medicalConditions: 'None' }
-];
-
-const MOCK_ANOMALIES = [
-  { email: 'sarah.k@stanford.edu', anomaly_flag: true, risk_level: 'high', reason: 'Speed Spike Detected (42 km/h) - potential forced vehicle boarding', timestamp: new Date(Date.now() - 3 * 60000).toISOString() },
-  { email: 'alex.chen@google.com', anomaly_flag: true, risk_level: 'medium', reason: 'Restricted Zone Infraction - entered dark alleyway segment', timestamp: new Date(Date.now() - 15 * 60000).toISOString() },
-  { email: 'm.schmidt@goldman.com', anomaly_flag: true, risk_level: 'high', reason: 'Prolonged Immobility (12 minutes) - user unresponsive to safety prompt', timestamp: new Date(Date.now() - 28 * 60000).toISOString() },
-  { email: 'priya.n@mit.edu', anomaly_flag: false, risk_level: 'safe', reason: 'Routine location check-in - normal velocity', timestamp: new Date(Date.now() - 35 * 60000).toISOString() }
-];
-
-const MOCK_ALERTS = [
-  { _id: 'sos_01', email: 'sarah.k@stanford.edu', lat: 37.4275, lng: -122.1697, trigger: 'ai_anomaly', notes: 'Automated dispatch - High risk velocity spike', timestamp: new Date(Date.now() - 3 * 60000).toISOString() },
-  { _id: 'sos_02', email: 'm.schmidt@goldman.com', lat: 40.7128, lng: -74.0060, trigger: 'manual', notes: 'Manual panic activation by user', timestamp: new Date(Date.now() - 28 * 60000).toISOString() }
-];
-
-// ==========================================
 // DYNAMIC SERVER HOST RESOLUTION (DEPLOY COMPATIBLE)
 // ==========================================
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -56,7 +33,7 @@ function App() {
   const [alerts, setAlerts] = useState([]);
   const [stats, setStats] = useState({
     totalUsers: 0,
-    activeJourneys: 3, // Pulsing presentation value
+    activeJourneys: 0,
     threatsMitigated: 0,
     activeSosCount: 0
   });
@@ -78,41 +55,24 @@ function App() {
 
         // Check if database contains actual records
         const activeProfiles = profileData.success ? (Array.isArray(profileData.profiles) ? profileData.profiles : [profileData.profiles].filter(Boolean)) : [];
-        const activeAlerts = sosRes.ok ? (sosData.alerts || []) : [];
-        const activeAnomalies = anomalyRes.ok ? (anomalyData.logs || []) : [];
+        const activeAlerts = sosData.alerts || [];
+        const activeAnomalies = anomalyData.logs || [];
 
-        // If the database is completely empty, we blend in some mock data so the presentation looks stunning
-        if (activeProfiles.length === 0 && activeAlerts.length === 0) {
-          useSimulationMode();
-        } else {
-          setProfiles(activeProfiles.length > 0 ? activeProfiles : MOCK_PROFILES);
-          setAlerts(activeAlerts);
-          setAnomalies(activeAnomalies.length > 0 ? activeAnomalies : MOCK_ANOMALIES);
-          
-          setIsLive(true);
-          calculateStats(
-            activeProfiles.length > 0 ? activeProfiles : MOCK_PROFILES,
-            activeAlerts,
-            activeAnomalies.length > 0 ? activeAnomalies : MOCK_ANOMALIES
-          );
-        }
+        setProfiles(activeProfiles);
+        setAlerts(activeAlerts);
+        setAnomalies(activeAnomalies);
+        
+        setIsLive(true);
+        calculateStats(activeProfiles, activeAlerts, activeAnomalies);
       } else {
-        useSimulationMode();
+        setIsLive(false);
       }
     } catch (e) {
-      console.warn("Express server offline. Engaging local simulation presentation mode.");
-      useSimulationMode();
+      console.warn("Express server offline. Real-time stream suspended.");
+      setIsLive(false);
     } finally {
       setLoading(false);
     }
-  };
-
-  const useSimulationMode = () => {
-    setIsLive(false);
-    setProfiles(MOCK_PROFILES);
-    setAnomalies(MOCK_ANOMALIES);
-    setAlerts(MOCK_ALERTS);
-    calculateStats(MOCK_PROFILES, MOCK_ALERTS, MOCK_ANOMALIES);
   };
 
   const calculateStats = (pList, aList, anomList) => {
@@ -127,9 +87,9 @@ function App() {
     const threatsMitigated = anomList.filter(anom => anom.anomaly_flag).length;
 
     setStats({
-      totalUsers: totalUsers + 128, // Presentation offset to represent a loaded app
-      activeJourneys: activeSosCount > 0 ? activeSosCount + 2 : 4,
-      threatsMitigated: threatsMitigated + 42,
+      totalUsers: totalUsers,
+      activeJourneys: activeSosCount,
+      threatsMitigated: threatsMitigated,
       activeSosCount: activeSosCount
     });
   };
@@ -145,6 +105,26 @@ function App() {
   const studentCount = profiles.filter(p => p.isStudent).length;
   const workingCount = profiles.filter(p => p.isWorking).length;
   const otherCount = profiles.length - studentCount - workingCount;
+
+  const studentPercentage = profiles.length > 0 ? Math.round(studentCount / profiles.length * 100) : 0;
+  const workingPercentage = profiles.length > 0 ? Math.round(workingCount / profiles.length * 100) : 0;
+
+  const declaredBloodGroupCount = profiles.filter(p => p.bloodGroup && p.bloodGroup.trim() !== '').length;
+  const bloodGroupRate = profiles.length > 0 ? Math.round(declaredBloodGroupCount / profiles.length * 100) : 0;
+
+  const declaredConditionsCount = profiles.filter(p => (p.allergies && p.allergies.trim() !== '') || (p.medicalConditions && p.medicalConditions.trim() !== '')).length;
+  const medicalRate = profiles.length > 0 ? Math.round(declaredConditionsCount / profiles.length * 100) : 0;
+
+  const totalDocs = profiles.filter(p => p.documentType && p.documentType.trim() !== '').length;
+  const passportCount = profiles.filter(p => p.documentType?.toLowerCase().includes('passport') || p.passport && p.passport.trim() !== '').length;
+  const idCount = profiles.filter(p => p.documentType?.toLowerCase().includes('id') || p.documentType?.toLowerCase().includes('national')).length;
+  const licenseCount = profiles.filter(p => p.documentType?.toLowerCase().includes('license') || p.documentType?.toLowerCase().includes('driver')).length;
+  
+  const passportPercentage = totalDocs > 0 ? Math.round(passportCount / totalDocs * 100) : 0;
+  const idPercentage = totalDocs > 0 ? Math.round(idCount / totalDocs * 100) : 0;
+  const licensePercentage = totalDocs > 0 ? Math.round(licenseCount / totalDocs * 100) : 0;
+  const otherDocsPercentage = totalDocs > 0 ? Math.max(0, 100 - passportPercentage - idPercentage - licensePercentage) : 0;
+
 
   return (
     <div className="main-content">
@@ -418,7 +398,7 @@ function App() {
                 <Heart size={20} color="var(--color-danger)" />
               </div>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: '800' }}>100%</span>
+                <span style={{ fontSize: '20px', fontWeight: '800' }}>{bloodGroupRate}%</span>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Blood Group declaration rate</p>
               </div>
             </div>
@@ -428,7 +408,7 @@ function App() {
                 <AlertTriangle size={20} color="var(--color-warning)" />
               </div>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: '800' }}>80%</span>
+                <span style={{ fontSize: '20px', fontWeight: '800' }}>{medicalRate}%</span>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Allergies / Conditions synced</p>
               </div>
             </div>
@@ -444,20 +424,20 @@ function App() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, justifyContent: 'center' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> Passports / IDs</span>
-              <span style={{ fontWeight: '600' }}>42%</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> Passports</span>
+              <span style={{ fontWeight: '600' }}>{passportPercentage}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> Flight / Train Tickets</span>
-              <span style={{ fontWeight: '600' }}>35%</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> National IDs</span>
+              <span style={{ fontWeight: '600' }}>{idPercentage}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> Travel Insurance</span>
-              <span style={{ fontWeight: '600' }}>15%</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> Driver Licenses</span>
+              <span style={{ fontWeight: '600' }}>{licensePercentage}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> Others / Vouchers</span>
-              <span style={{ fontWeight: '600' }}>8%</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}><FileText size={14} /> Other Documents</span>
+              <span style={{ fontWeight: '600' }}>{otherDocsPercentage}%</span>
             </div>
           </div>
         </div>

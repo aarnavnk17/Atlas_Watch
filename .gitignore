@@ -53,3 +53,8 @@ app.*.map.json
 /backend/.npm-cache/
 *.db
 *.db.*
+
+# Local artefacts
+backend/uploads/
+.npm-cache/
+**/.npm-cache/

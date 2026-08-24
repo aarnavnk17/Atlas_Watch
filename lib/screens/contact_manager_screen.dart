@@ -131,14 +131,14 @@ class _ContactManagerScreenState extends State<ContactManagerScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.03)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.1),
+            color: Colors.orange.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.person_outline_rounded, color: Colors.orange.shade400),
@@ -264,10 +264,8 @@ class _ContactManagerScreenState extends State<ContactManagerScreen> {
     );
   }
 
-  // Override the existing methods to use the unified dialog
-  @override
+  // Thin wrappers around the unified dialog.
   void _showAddDialog() => _showContactDialog();
-  @override
   void _showEditDialog(EmergencyContact contact) => _showContactDialog(contact: contact);
 
   InputDecoration _inputDecoration(String label, IconData icon) {
@@ -277,7 +275,7 @@ class _ContactManagerScreenState extends State<ContactManagerScreen> {
       prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 20),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

@@ -59,7 +59,7 @@ class _JourneyLoadingScreenState extends State<JourneyLoadingScreen> {
               child: Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.05),
+                  color: Colors.blue.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
                 child: const CircularProgressIndicator(

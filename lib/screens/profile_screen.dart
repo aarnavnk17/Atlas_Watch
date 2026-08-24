@@ -71,7 +71,7 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.blue.shade400.withOpacity(0.3), width: 2),
+                          border: Border.all(color: Colors.blue.shade400.withValues(alpha: 0.3), width: 2),
                         ),
                         child: CircleAvatar(
                           radius: 56,
@@ -160,7 +160,7 @@ class ProfileScreen extends StatelessWidget {
                       child: TextButton.icon(
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.red.shade400,
-                          backgroundColor: Colors.red.withOpacity(0.05),
+                          backgroundColor: Colors.red.withValues(alpha: 0.05),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
                         onPressed: () async {
@@ -194,7 +194,7 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.03)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
       ),
       child: Row(
         children: [

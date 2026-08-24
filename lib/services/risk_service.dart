@@ -40,7 +40,6 @@ class RiskService {
   // Returns the full analysis including anomaly details.
   // -------------------------------------------------------
   Future<RiskAnalysisResult> analyzeLocation({
-    required String email,
     required double lat,
     required double lng,
   }) async {
@@ -48,7 +47,7 @@ class RiskService {
       final response = await BackendService.post(
         '/analyze',
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email, 'lat': lat, 'lng': lng}),
+        body: json.encode({'lat': lat, 'lng': lng}),
       );
 
       if (response.statusCode == 200) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../services/session_service.dart';
+import 'profile_setup_screen.dart';
 import '../widgets/sleek_animation.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -61,8 +62,7 @@ class _SignupScreenState extends State<SignupScreen> {
     });
 
     try {
-      final auth = AuthService();
-      final error = await auth.register(
+      final error = await SessionService().register(
         email: email,
         password: password,
       );
@@ -74,10 +74,13 @@ class _SignupScreenState extends State<SignupScreen> {
       });
 
       if (error == null) {
-        ScaffoldMessenger.of(
+        // Registration signs the user in, so continue straight to profile setup
+        // instead of asking them to log in again.
+        Navigator.pushAndRemoveUntil(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Signup successful')));
-        Navigator.pop(context); // Return to login screen
+          MaterialPageRoute(builder: (_) => const ProfileSetupScreen(isEditMode: false)),
+          (route) => false,
+        );
       } else {
         ScaffoldMessenger.of(
           context,
@@ -172,7 +175,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E1E1E),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.05)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +283,7 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),

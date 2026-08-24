@@ -17,13 +17,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math' as math;
 import '../models/risk_level.dart';
-import '../data/city_coordinates.dart';
+import '../data/crime_dataset.dart';
 import '../services/journey_service.dart';
 import '../services/geofence_service.dart';
 import '../services/tracking_service.dart';
 import '../services/risk_service.dart';
 import '../services/ai_danger_service.dart';
-import '../widgets/sleek_animation.dart';
 import 'sos_screen.dart';
 
 class JourneyScreen extends StatefulWidget {
@@ -50,7 +49,6 @@ class _JourneyScreenState extends State<JourneyScreen> {
   final MapController    _mapController    = MapController();
   final JourneyService   _journeyService   = JourneyService();
   final GeofenceService  _geofenceService  = GeofenceService();
-  final TrackingService  _trackingService  = TrackingService();
 
   List<LatLng> _routePoints   = [];
   LatLng? _startLatLng;
@@ -87,12 +85,20 @@ class _JourneyScreenState extends State<JourneyScreen> {
       riskLevel    : widget.riskLevel.toString().split('.').last,
     );
 
-    // Start live AI tracking (FR-3.2.6 / FR-3.2.13–15)
-    _trackingService.startTracking(onUpdate: _onRiskUpdate);
+    // Start live AI tracking (FR-3.2.6 / FR-3.2.13–15). The subscription is
+    // released in dispose(), which the previous unmanaged timer never was.
+    TrackingService.instance.subscribe(
+      this,
+      interval: TrackingService.journeyInterval,
+      onUpdate: _onRiskUpdate,
+    );
   }
 
   @override
   void dispose() {
+    // Release the tracking subscription first: leaving it registered kept a GPS
+    // + network poll running for the lifetime of the process, once per journey.
+    TrackingService.instance.unsubscribe(this);
     _journeyService.endJourney();
     super.dispose();
   }
@@ -231,8 +237,9 @@ class _JourneyScreenState extends State<JourneyScreen> {
 
   Future<void> _fetchRoute() async {
     try {
-      LatLng? start = CityCoordinates.get(widget.startLocation);
-      LatLng? end   = CityCoordinates.get(widget.endLocation);
+      await CrimeDataset.ensureLoaded();
+      LatLng? start = CrimeDataset.coordinatesFor(widget.startLocation);
+      LatLng? end   = CrimeDataset.coordinatesFor(widget.endLocation);
 
       if (start == null) {
         try {
@@ -280,8 +287,9 @@ class _JourneyScreenState extends State<JourneyScreen> {
         for (int i = 0; i < routePoints.length; i += step) {
           waypointSample.add({'lat': routePoints[i].latitude, 'lng': routePoints[i].longitude});
         }
-        _runAiCheck(lat: start!.latitude, lng: start.longitude, routeWaypoints: waypointSample);
+        _runAiCheck(lat: start.latitude, lng: start.longitude, routeWaypoints: waypointSample);
       } else {
+        if (!mounted) return;
         setState(() {
           _loadingRoute = false;
           _errorMessage = "Could not find coordinates for '${widget.startLocation}' or '${widget.endLocation}'.";
@@ -365,7 +373,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
           // ── Live AI Risk Banner (FR-3.2.8/15) ──────────────
           AnimatedContainer(
             duration: const Duration(milliseconds: 400),
-            color: _riskColor.withOpacity(0.12),
+            color: _riskColor.withValues(alpha: 0.12),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(children: [
               Icon(
@@ -435,7 +443,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                                 point: _startLatLng!, width: 40, height: 40,
                                 child: Container(
                                   decoration: BoxDecoration(
-                                      color: Colors.blue.withOpacity(0.2),
+                                      color: Colors.blue.withValues(alpha: 0.2),
                                       shape: BoxShape.circle),
                                   child: const Icon(Icons.circle, color: Colors.blue, size: 14),
                                 ),
@@ -454,7 +462,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                                   point: LatLng(zone.centerLat, zone.centerLng),
                                   radius: zone.radiusMeters,
                                   useRadiusInMeter: true,
-                                  color: color.withOpacity(0.15),
+                                  color: color.withValues(alpha: 0.15),
                                   borderColor: color,
                                   borderStrokeWidth: 2.0,
                                 );
@@ -466,7 +474,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: _geofenceColor(zone.type).withOpacity(0.85),
+                                    color: _geofenceColor(zone.type).withValues(alpha: 0.85),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(zone.name,
@@ -499,7 +507,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
             decoration: BoxDecoration(
               color: const Color(0xFF1E1E1E),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3),
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3),
                   blurRadius: 20, offset: const Offset(0, -5))],
             ),
             child: Column(
@@ -626,7 +634,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.07)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
         ),
         child: Row(children: [
           SizedBox(height: 14, width: 14,
@@ -643,9 +651,13 @@ class _JourneyScreenState extends State<JourneyScreen> {
     final isCritical = a.score >= 75;
 
     Color bgColor;
-    if (a.score < 40)      bgColor = const Color(0xFF041A0D);
-    else if (a.score < 60) bgColor = const Color(0xFF1A1000);
-    else                   bgColor = const Color(0xFF1A0404);
+    if (a.score < 40) {
+      bgColor = const Color(0xFF041A0D);
+    } else if (a.score < 60) {
+      bgColor = const Color(0xFF1A1000);
+    } else {
+      bgColor = const Color(0xFF1A0404);
+    }
 
     return GestureDetector(
       onTap: _showAiScoreSheet,
@@ -654,16 +666,16 @@ class _JourneyScreenState extends State<JourneyScreen> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withOpacity(0.45), width: 1.5),
+          border: Border.all(color: color.withValues(alpha: 0.45), width: 1.5),
           boxShadow: isCritical
-              ? [BoxShadow(color: color.withOpacity(0.25), blurRadius: 20, spreadRadius: 1)]
+              ? [BoxShadow(color: color.withValues(alpha: 0.25), blurRadius: 20, spreadRadius: 1)]
               : [],
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Container(
               padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(color: color.withOpacity(0.15),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10)),
               child: Icon(
                 isCritical ? Icons.gpp_bad_rounded
@@ -681,7 +693,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
               tween: Tween(begin: 0, end: a.score.toDouble()),
               duration: const Duration(milliseconds: 900),
               curve: Curves.easeOut,
-              builder: (_, val, __) => Text('${val.toInt()}/100',
+              builder: (_, val, _) => Text('${val.toInt()}/100',
                   style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w900)),
             ),
             const SizedBox(width: 8),
@@ -692,10 +704,10 @@ class _JourneyScreenState extends State<JourneyScreen> {
             tween: Tween(begin: 0, end: a.score / 100),
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeOut,
-            builder: (_, val, __) => ClipRRect(
+            builder: (_, val, _) => ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: LinearProgressIndicator(value: val, minHeight: 6,
-                  backgroundColor: Colors.white.withOpacity(0.06),
+                  backgroundColor: Colors.white.withValues(alpha: 0.06),
                   valueColor: AlwaysStoppedAnimation<Color>(color)),
             ),
           ),
@@ -703,9 +715,9 @@ class _JourneyScreenState extends State<JourneyScreen> {
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: color.withOpacity(0.15),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: color.withOpacity(0.35))),
+                  border: Border.all(color: color.withValues(alpha: 0.35))),
               child: Text(a.severity.toUpperCase(),
                   style: TextStyle(color: color, fontSize: 9,
                       fontWeight: FontWeight.w900, letterSpacing: 1)),
@@ -727,7 +739,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-          color: _riskColor.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+          color: _riskColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.security_rounded, color: _riskColor, size: 14),
         const SizedBox(width: 8),
@@ -769,7 +781,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
       color: const Color(0xFF2C2C2C),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.white.withOpacity(0.05)),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
       ),
       elevation: 4,
       child: InkWell(
@@ -822,7 +834,7 @@ class _AiScoreSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: _bgColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border.all(color: color.withOpacity(0.35), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
       ),
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       child: SingleChildScrollView(
@@ -837,7 +849,7 @@ class _AiScoreSheet extends StatelessWidget {
           Row(children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withOpacity(0.15),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(14)),
               child: Icon(
                 isCritical ? Icons.gpp_bad_rounded
@@ -854,7 +866,7 @@ class _AiScoreSheet extends StatelessWidget {
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text('${a.score}', style: TextStyle(color: color, fontSize: 44,
                   fontWeight: FontWeight.w900, height: 1)),
-              Text('/100', style: TextStyle(color: color.withOpacity(0.5),
+              Text('/100', style: TextStyle(color: color.withValues(alpha: 0.5),
                   fontSize: 12, fontWeight: FontWeight.w700)),
             ]),
           ]),
@@ -864,7 +876,7 @@ class _AiScoreSheet extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(value: a.score / 100, minHeight: 8,
-                backgroundColor: Colors.white.withOpacity(0.06),
+                backgroundColor: Colors.white.withValues(alpha: 0.06),
                 valueColor: AlwaysStoppedAnimation<Color>(color)),
           ),
           const SizedBox(height: 14),
@@ -873,9 +885,9 @@ class _AiScoreSheet extends StatelessWidget {
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: color.withOpacity(0.15),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: color.withOpacity(0.35))),
+                  border: Border.all(color: color.withValues(alpha: 0.35))),
               child: Text(a.severity.toUpperCase(),
                   style: TextStyle(color: color, fontSize: 10,
                       fontWeight: FontWeight.w900, letterSpacing: 1)),
@@ -889,9 +901,9 @@ class _AiScoreSheet extends StatelessWidget {
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(color: Colors.red.withOpacity(0.1),
+              decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.red.withOpacity(0.45))),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.45))),
               child: const Row(children: [
                 Icon(Icons.emergency_rounded, color: Colors.red, size: 15),
                 SizedBox(width: 8),
@@ -902,11 +914,11 @@ class _AiScoreSheet extends StatelessWidget {
           ],
 
           const SizedBox(height: 22),
-          Divider(color: color.withOpacity(0.15), height: 1),
+          Divider(color: color.withValues(alpha: 0.15), height: 1),
           const SizedBox(height: 18),
 
           // ── Score breakdown ────────────────────────────────
-          Text('SCORE BREAKDOWN', style: TextStyle(color: color.withOpacity(0.7),
+          Text('SCORE BREAKDOWN', style: TextStyle(color: color.withValues(alpha: 0.7),
               fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
           const SizedBox(height: 14),
           ...a.subScores.map((sub) {
@@ -931,7 +943,7 @@ class _AiScoreSheet extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(value: sub.score / 100, minHeight: 5,
-                        backgroundColor: Colors.white.withOpacity(0.06),
+                        backgroundColor: Colors.white.withValues(alpha: 0.06),
                         valueColor: AlwaysStoppedAnimation<Color>(sc)),
                   ),
                 ])),
@@ -942,9 +954,9 @@ class _AiScoreSheet extends StatelessWidget {
           // ── Risk factors ───────────────────────────────────
           if (a.riskFactors.where((f) => !f.contains('backend offline') && !f.contains('On-device')).isNotEmpty) ...[
             const SizedBox(height: 6),
-            Divider(color: Colors.white.withOpacity(0.06), height: 1),
+            Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
             const SizedBox(height: 16),
-            Text('RISK FACTORS', style: TextStyle(color: Colors.orange.withOpacity(0.8),
+            Text('RISK FACTORS', style: TextStyle(color: Colors.orange.withValues(alpha: 0.8),
                 fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             const SizedBox(height: 10),
             ...a.riskFactors.where((f) => !f.contains('backend offline') && !f.contains('On-device')).map(
@@ -960,7 +972,7 @@ class _AiScoreSheet extends StatelessWidget {
           ],
 
           const SizedBox(height: 20),
-          Divider(color: Colors.white.withOpacity(0.06), height: 1),
+          Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
           const SizedBox(height: 14),
 
           // ── Refresh ────────────────────────────────────────

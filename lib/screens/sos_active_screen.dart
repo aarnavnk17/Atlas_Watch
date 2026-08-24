@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../services/backend_service.dart';
-import '../services/session_service.dart';
 import '../widgets/sleek_animation.dart';
 
 class SosActiveScreen extends StatefulWidget {
@@ -65,13 +63,13 @@ class _SosActiveScreenState extends State<SosActiveScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(40),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.red.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.emergency_rounded, size: 100, color: Colors.redAccent),
@@ -98,9 +96,9 @@ class _SosActiveScreenState extends State<SosActiveScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.redAccent.withOpacity(0.15),
+                          color: Colors.redAccent.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
+                          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -153,24 +151,21 @@ class _SosActiveScreenState extends State<SosActiveScreen> {
                           shadowColor: Colors.black45,
                         ),
                         onPressed: () async {
+                          // Captured before the await so no BuildContext is
+                          // used across an async gap.
+                          final navigator = Navigator.of(context);
                           if (widget.playSiren) {
                             FlutterRingtonePlayer().stop();
                           }
                           try {
-                            final session = SessionService();
-                            final email = await session.getEmail();
-                            if (email != null) {
-                              await BackendService.post(
-                                '/sos/resolve',
-                                headers: {'Content-Type': 'application/json'},
-                                body: json.encode({'email': email}),
-                              );
-                            }
+                            // The server resolves the alerts belonging to the
+                            // authenticated caller; no email is passed.
+                            await BackendService.post('/sos/resolve');
                           } catch (e) {
                             debugPrint('Failed to resolve SOS on backend: $e');
                           }
                           if (mounted) {
-                            Navigator.popUntil(context, (route) => route.isFirst);
+                            navigator.popUntil((route) => route.isFirst);
                           }
                         },
                         child: const Text(

@@ -252,7 +252,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 color: Colors.amber.shade400,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: _status,
+                    initialValue: _status,
                     style: const TextStyle(color: Colors.white, fontSize: 15),
                     dropdownColor: const Color(0xFF2C2C2C),
                     decoration: _inputDecoration('Current Status', Icons.school_outlined),
@@ -291,7 +291,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 isEmergency: true,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: _selectedBloodGroup,
+                    initialValue: _selectedBloodGroup,
                     style: const TextStyle(color: Colors.white, fontSize: 15),
                     dropdownColor: const Color(0xFF2C2C2C),
                     decoration: _inputDecoration('Blood Group', Icons.bloodtype_outlined, isEmergency: true),
@@ -348,11 +348,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.blue.shade400.withOpacity(0.5), width: 2),
+            border: Border.all(color: Colors.blue.shade400.withValues(alpha: 0.5), width: 2),
           ),
           child: CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.blue.shade900.withOpacity(0.3),
+            backgroundColor: Colors.blue.shade900.withValues(alpha: 0.3),
             child: Icon(Icons.person, size: 45, color: Colors.blue.shade400),
           ),
         ),
@@ -385,10 +385,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E), // Dark Card Background
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.1), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -415,7 +415,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ],
             ),
           ),
-          Divider(indent: 20, endIndent: 20, color: Colors.white.withOpacity(0.05)),
+          Divider(indent: 20, endIndent: 20, color: Colors.white.withValues(alpha: 0.05)),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(children: children),
@@ -455,7 +455,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

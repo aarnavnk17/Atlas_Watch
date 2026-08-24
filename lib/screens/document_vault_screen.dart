@@ -3,7 +3,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
 import '../services/document_service.dart';
 import '../widgets/sleek_animation.dart';
 
@@ -20,7 +19,6 @@ class _DocumentVaultScreenState extends State<DocumentVaultScreen> {
   List<dynamic> _documents = [];
 
   final List<String> _categories = ['Ticket', 'Hotel', 'Insurance', 'Passport', 'Other'];
-  String _selectedCategory = 'Other';
 
   @override
   void initState() {
@@ -85,17 +83,23 @@ class _DocumentVaultScreenState extends State<DocumentVaultScreen> {
 
   Future<void> _viewDocument(dynamic doc) async {
     try {
-      final String url = doc['fileUrl'];
-      final String fileName = doc['fileName'];
+      // Documents are no longer public URLs — fetch through the authenticated
+      // endpoint with the session token, then hand the local copy to the viewer.
       final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/$fileName');
+      final safeName = '${doc['_id']}_${doc['originalName'] ?? 'document'}'
+          .replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
 
-      if (!await tempFile.exists()) {
-        final response = await http.get(Uri.parse(url));
-        await tempFile.writeAsBytes(response.bodyBytes);
+      final file = await _docService.downloadDocument(doc['_id'], safeName, tempDir);
+      if (file == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not download document')),
+          );
+        }
+        return;
       }
 
-      await OpenFilex.open(tempFile.path);
+      await OpenFilex.open(file.path);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -195,14 +199,14 @@ class _DocumentVaultScreenState extends State<DocumentVaultScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(_getCategoryIcon(category), color: Colors.blue.shade400),

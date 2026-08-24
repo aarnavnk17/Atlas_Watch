@@ -1,120 +1,97 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'auth_store.dart';
 import 'backend_service.dart';
 
+/// Owns registration, sign-in, and the current user's profile.
 class SessionService {
-  static const _emailKey = 'user_email';
   static const _profileCompleteKey = 'profile_complete';
 
   // ================================
-  // LOGIN
+  // REGISTER / LOGIN
   // ================================
+
+  /// Returns null on success, or a message describing why registration failed.
+  Future<String?> register({required String email, required String password}) async {
+    try {
+      final response = await BackendService.post(
+        '/register',
+        body: json.encode({'email': email, 'password': password}),
+      );
+      final data = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode == 200 && data['token'] != null) {
+        await AuthStore.save(token: data['token'], email: data['email'] ?? email);
+        return null;
+      }
+      return data['error'] ?? data['message'] ?? 'Registration failed';
+    } catch (e) {
+      debugPrint('Registration failed: $e');
+      return 'Could not reach the AtlasWatch server. Check your connection.';
+    }
+  }
+
   Future<bool> login(String identifier, String password) async {
     try {
       final response = await BackendService.post(
         '/login',
-        headers: {'Content-Type': 'application/json'},
         body: json.encode({'email': identifier, 'password': password}),
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final token = data['token'];
         final email = data['email'];
-        if (email != null) {
-          await saveEmail(email);
+        if (token != null && email != null) {
+          await AuthStore.save(token: token, email: email);
           return true;
         }
       }
     } catch (e) {
       debugPrint('Login failed: $e');
     }
-
     return false;
   }
 
-  Future<void> saveEmail(String email) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_emailKey, email);
-  }
+  Future<String?> getEmail() => AuthStore.email();
 
-  Future<String?> getEmail() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_emailKey);
-  }
+  Future<bool> isLoggedIn() => AuthStore.hasSession();
 
-  Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey(_emailKey);
-  }
-
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_emailKey);
-    await prefs.remove(_profileCompleteKey);
-  }
+  Future<void> logout() => AuthStore.clear();
 
   // ================================
-  // PROFILE BACKEND CHECK (FIXED)
+  // PROFILE
   // ================================
+
   Future<bool> isProfileComplete() async {
-    final email = await getEmail();
-    if (email == null) return false;
-
+    if (!await AuthStore.hasSession()) return false;
     try {
-      final response = await BackendService.get('/profile?email=$email');
-
-      if (response.statusCode != 200) {
-        return false;
-      }
-
+      final response = await BackendService.get('/profile');
+      if (response.statusCode != 200) return false;
       final data = json.decode(response.body);
-
-      // FIX: check for profile object instead of "exists"
-      if (data['profile'] != null) {
-        return true;
-      }
-
-      if (data['exists'] == true) {
-        return true;
-      }
+      return data['profile'] != null;
     } catch (e) {
       debugPrint('isProfileComplete check failed: $e');
+      return false;
     }
-    return false;
   }
 
-  // ================================
-  // LOAD PROFILE FROM BACKEND
-  // ================================
   Future<Map<String, dynamic>?> loadProfile() async {
-    final email = await getEmail();
-    if (email == null) return null;
-
+    if (!await AuthStore.hasSession()) return null;
     try {
-      final response = await BackendService.get('/profile?email=$email');
-
+      final response = await BackendService.get('/profile');
       if (response.statusCode != 200) return null;
-
       final data = json.decode(response.body);
-
-      if (data['profile'] != null) {
-        return data['profile'];
-      }
-
-      if (data['exists'] == true && data['profile'] != null) {
-        return data['profile'];
-      }
+      return data['profile'] as Map<String, dynamic>?;
     } catch (e) {
       debugPrint('loadProfile failed: $e');
+      return null;
     }
-
-    return null;
   }
 
-  // ================================
-  // SAVE PROFILE TO BACKEND
-  // ================================
   Future<bool> saveProfile({
     String? fullName,
     String? phoneNumber,
@@ -129,15 +106,12 @@ class SessionService {
     bool? isWorking,
     String? organizationName,
   }) async {
-    final email = await getEmail();
-    if (email == null) return false;
+    if (!await AuthStore.hasSession()) return false;
 
     try {
       final response = await BackendService.post(
         '/profile',
-        headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'email': email,
           'fullName': fullName,
           'phoneNumber': phoneNumber,
           'passport': passport,
@@ -152,10 +126,6 @@ class SessionService {
           'organizationName': organizationName,
         }),
       );
-
-      debugPrint("PROFILE STATUS: ${response.statusCode}");
-      debugPrint("PROFILE RESPONSE: ${response.body}");
-
       return response.statusCode == 200;
     } catch (e) {
       debugPrint('saveProfile failed: $e');
@@ -163,9 +133,6 @@ class SessionService {
     }
   }
 
-  // ================================
-  // OPTIONAL LOCAL FLAG (UI COMPAT)
-  // ================================
   Future<void> setProfileComplete(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_profileCompleteKey, value);

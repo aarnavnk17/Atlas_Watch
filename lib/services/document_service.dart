@@ -1,57 +1,44 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'session_service.dart';
-import 'backend_service.dart';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+
+import 'backend_service.dart';
+
 class DocumentService {
-  final SessionService _session = SessionService();
-
   Future<List<dynamic>> getDocuments() async {
-    final email = await _session.getEmail();
-    if (email == null) return [];
-
     try {
-      final response = await BackendService.get('/documents?email=$email');
+      final response = await BackendService.get('/documents');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return data['documents'] ?? [];
       }
     } catch (e) {
-      print('Error fetching documents: $e');
+      debugPrint('Error fetching documents: $e');
     }
     return [];
   }
 
   Future<bool> uploadDocument(File file, String category) async {
-    final email = await _session.getEmail();
-    if (email == null) return false;
-
     try {
-      final baseUrl = await BackendService.getBaseUrl();
-      var request = http.MultipartRequest(
+      final request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/documents/upload'),
-      );
+        Uri.parse('${BackendService.baseUrl}/documents/upload'),
+      )
+        ..headers.addAll(await BackendService.authHeaders(json: false))
+        ..fields['category'] = category
+        // The server validates the real type and picks the stored filename; it
+        // rejects anything outside the allowed document types.
+        ..files.add(await http.MultipartFile.fromPath('file', file.path));
 
-      request.fields['email'] = email;
-      request.fields['category'] = category;
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          file.path,
-          contentType: MediaType('application', 'octet-stream'),
-        ),
-      );
-
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
+      final response = await http.Response.fromStream(await request.send());
+      if (response.statusCode != 200) {
+        debugPrint('Upload rejected (${response.statusCode}): ${response.body}');
+      }
       return response.statusCode == 200;
     } catch (e) {
-      print('Error uploading document: $e');
+      debugPrint('Error uploading document: $e');
       return false;
     }
   }
@@ -61,8 +48,24 @@ class DocumentService {
       final response = await BackendService.delete('/documents/$id');
       return response.statusCode == 200;
     } catch (e) {
-      print('Error deleting document: $e');
+      debugPrint('Error deleting document: $e');
       return false;
+    }
+  }
+
+  /// Documents are served through an authenticated endpoint, so viewing one
+  /// means downloading it with the session token rather than opening a URL.
+  Future<File?> downloadDocument(String id, String fileName, Directory directory) async {
+    try {
+      final response = await BackendService.get('/documents/$id/file');
+      if (response.statusCode != 200) return null;
+
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsBytes(response.bodyBytes);
+      return file;
+    } catch (e) {
+      debugPrint('Error downloading document: $e');
+      return null;
     }
   }
 }

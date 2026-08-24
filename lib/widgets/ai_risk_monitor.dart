@@ -113,19 +113,21 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return Container(
+    if (_loading) {
+      return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(color: const Color(0xFF181818),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.07))),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07))),
       child: Row(children: [
         SizedBox(height: 18, width: 18,
             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue.shade400)),
         const SizedBox(width: 14),
         const Text('AI assessing danger level...', style: TextStyle(color: Colors.white38, fontSize: 13)),
       ]),
-    );
+      );
+    }
 
     final a = _assessment!;
     final isCritical = a.score >= 75;
@@ -140,8 +142,8 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
           margin: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
             color: _bgColor, borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: _mainColor.withOpacity(0.45), width: 1.5),
-            boxShadow: isCritical ? [BoxShadow(color: _mainColor.withOpacity(0.3), blurRadius: 28, spreadRadius: 2)] : [],
+            border: Border.all(color: _mainColor.withValues(alpha: 0.45), width: 1.5),
+            boxShadow: isCritical ? [BoxShadow(color: _mainColor.withValues(alpha: 0.3), blurRadius: 28, spreadRadius: 2)] : [],
           ),
           child: Column(children: [
             // ── Main visible card ─────────────────────────────
@@ -151,7 +153,7 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
                 Row(children: [
                   Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: _mainColor.withOpacity(0.15),
+                    decoration: BoxDecoration(color: _mainColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12)),
                     child: Icon(
                       isCritical ? Icons.gpp_bad_rounded
@@ -171,11 +173,11 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
                       tween: Tween(begin: 0, end: a.score.toDouble()),
                       duration: const Duration(milliseconds: 900),
                       curve: Curves.easeOut,
-                      builder: (_, val, __) => Text(val.toInt().toString(),
+                      builder: (_, val, _) => Text(val.toInt().toString(),
                           style: TextStyle(color: _mainColor, fontSize: 42,
                               fontWeight: FontWeight.w900, height: 1)),
                     ),
-                    Text('/100', style: TextStyle(color: _mainColor.withOpacity(0.5),
+                    Text('/100', style: TextStyle(color: _mainColor.withValues(alpha: 0.5),
                         fontSize: 11, fontWeight: FontWeight.w700)),
                   ]),
                   const SizedBox(width: 8),
@@ -190,10 +192,10 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
                   tween: Tween(begin: 0, end: a.score / 100),
                   duration: const Duration(milliseconds: 800),
                   curve: Curves.easeOut,
-                  builder: (_, val, __) => ClipRRect(
+                  builder: (_, val, _) => ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: LinearProgressIndicator(value: val, minHeight: 8,
-                        backgroundColor: Colors.white.withOpacity(0.06),
+                        backgroundColor: Colors.white.withValues(alpha: 0.06),
                         valueColor: AlwaysStoppedAnimation<Color>(_mainColor)),
                   ),
                 ),
@@ -201,9 +203,9 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                    decoration: BoxDecoration(color: _mainColor.withOpacity(0.15),
+                    decoration: BoxDecoration(color: _mainColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: _mainColor.withOpacity(0.35))),
+                        border: Border.all(color: _mainColor.withValues(alpha: 0.35))),
                     child: Text(a.severity.toUpperCase(),
                         style: TextStyle(color: _mainColor, fontSize: 10,
                             fontWeight: FontWeight.w900, letterSpacing: 1)),
@@ -220,9 +222,9 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                    decoration: BoxDecoration(color: Colors.red.withOpacity(0.1),
+                    decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.red.withOpacity(0.45))),
+                        border: Border.all(color: Colors.red.withValues(alpha: 0.45))),
                     child: const Row(children: [
                       Icon(Icons.emergency_rounded, color: Colors.red, size: 15),
                       SizedBox(width: 8),
@@ -250,18 +252,18 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
             SizeTransition(
               sizeFactor: _expandAnim,
               child: Column(children: [
-                Divider(color: _mainColor.withOpacity(0.15), height: 1),
+                Divider(color: _mainColor.withValues(alpha: 0.15), height: 1),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(18, 16, 18, 4),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('SCORE BREAKDOWN', style: TextStyle(color: _mainColor.withOpacity(0.7),
+                    Text('SCORE BREAKDOWN', style: TextStyle(color: _mainColor.withValues(alpha: 0.7),
                         fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                     const SizedBox(height: 14),
                     ...a.subScores.map(_buildSubRow),
                     const SizedBox(height: 16),
-                    Divider(color: Colors.white.withOpacity(0.06), height: 1),
+                    Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
                     const SizedBox(height: 14),
-                    Text('REPORT AN INCIDENT', style: TextStyle(color: Colors.orange.withOpacity(0.8),
+                    Text('REPORT AN INCIDENT', style: TextStyle(color: Colors.orange.withValues(alpha: 0.8),
                         fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                     const SizedBox(height: 10),
                     _buildReportPanel(),
@@ -298,8 +300,8 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
               tween: Tween(begin: 0, end: sub.score / 100),
               duration: const Duration(milliseconds: 700),
               curve: Curves.easeOut,
-              builder: (_, val, __) => LinearProgressIndicator(value: val, minHeight: 5,
-                  backgroundColor: Colors.white.withOpacity(0.06),
+              builder: (_, val, _) => LinearProgressIndicator(value: val, minHeight: 5,
+                  backgroundColor: Colors.white.withValues(alpha: 0.06),
                   valueColor: AlwaysStoppedAnimation<Color>(color)),
             ),
           ),
@@ -317,9 +319,9 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: zoneColor.withOpacity(0.1),
+      decoration: BoxDecoration(color: zoneColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: zoneColor.withOpacity(0.35))),
+          border: Border.all(color: zoneColor.withValues(alpha: 0.35))),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(zoneIcon, color: zoneColor, size: 14),
         const SizedBox(width: 6),
@@ -341,9 +343,9 @@ class AiRiskMonitorState extends State<AiRiskMonitor>
         onTap: _reporting ? null : () => _submitReport(t.$1),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1),
+          decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.orange.withOpacity(0.3))),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.3))),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(t.$2, size: 13, color: Colors.orange.shade300),
             const SizedBox(width: 6),

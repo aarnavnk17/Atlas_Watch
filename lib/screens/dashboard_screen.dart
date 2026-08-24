@@ -77,14 +77,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final crimeService = CrimeService();
         final riskService = RiskService();
 
-        // Priority 1: Use actual GPS coordinates
-        int score = await crimeService.fetchCrimeScoreByLocation(
+        // Priority 1: nearest city with data to the actual GPS fix.
+        var stats = await crimeService.fetchStatsByLocation(
             _currentLatLng.latitude, _currentLatLng.longitude);
 
-        // Priority 2: Fallback to address name
-        if (score == 0 && result.address != null) {
-          score = await crimeService.fetchCrimeScore(result.address!);
+        // Priority 2: fall back to matching the resolved address by name.
+        if (!stats.found && result.address != null) {
+          stats = await crimeService.fetchStats(result.address!);
         }
+        final score = stats.score;
 
         if (!mounted) return;
 
@@ -312,7 +313,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3), width: 1),
                 ),
                 child: const CircleAvatar(
                   radius: 26,
@@ -334,7 +335,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 15, offset: const Offset(0, 8))],
       ),
       child: Column(
@@ -377,7 +378,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: LinearProgressIndicator(
               value: _riskLevel == RiskLevel.low ? 0.2
                   : (_riskLevel == RiskLevel.medium ? 0.5 : 0.9),
-              backgroundColor: Colors.white.withOpacity(0.05),
+              backgroundColor: Colors.white.withValues(alpha: 0.05),
               color: _riskColor,
               minHeight: 6,
             ),
@@ -396,7 +397,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF1E1E1E),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.03)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,7 +405,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: color.withOpacity(0.1),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12)),
               child: Icon(icon, color: color, size: 22),
             ),
@@ -426,14 +427,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         decoration: BoxDecoration(
           color: isHighImpact ? color : const Color(0xFF1E1E1E),
           borderRadius: BorderRadius.circular(24),
-          border: isHighImpact ? null : Border.all(color: Colors.white.withOpacity(0.03)),
+          border: isHighImpact ? null : Border.all(color: Colors.white.withValues(alpha: 0.03)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isHighImpact ? Colors.white.withOpacity(0.2) : color.withOpacity(0.1),
+                color: isHighImpact ? Colors.white.withValues(alpha: 0.2) : color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: isHighImpact ? Colors.white : color, size: 28),
@@ -446,7 +447,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Text(title, style: const TextStyle(color: Colors.white,
                       fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                   Text(subtitle, style: TextStyle(
-                      color: isHighImpact ? Colors.white.withOpacity(0.8) : Colors.grey,
+                      color: isHighImpact ? Colors.white.withValues(alpha: 0.8) : Colors.grey,
                       fontSize: 13)),
                 ],
               ),

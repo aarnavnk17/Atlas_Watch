@@ -1,100 +1,43 @@
 'use strict';
 
-const SOS_THRESHOLD    = 75;
+const crimeData = require('./lib/crimeData');
+
+const SOS_THRESHOLD = 75;
 const DANGER_THRESHOLD = 60;
 const CAUTION_THRESHOLD = 40;
-
-const WEIGHTS = { crimeBase:0.35, locationProfile:0.20, temporalRisk:0.15, reportVelocity:0.20, behavioural:0.10 };
 
 const HIGH_RISK_AREAS = ['dharavi','kurla','govandi','mankhurd','seelampur','sangam vihar','uttam nagar','gajuwaka','jagadamba','benz circle','patamata','saidapet','vyasarpadi','kolathur','turbhe','vashi naka','asilmetta','maharanipeta','brodiepet','arundelpet'];
 const MEDIUM_RISK_AREAS = ['airport','railway station','bus stand','bus depot','market','bazaar','junction','flyover'];
 const LOW_RISK_AREAS = ['resort','hotel','mall','it park','tech park','university','hospital','embassy'];
 
-const MAX_RAW_CRIME = 18320; // Delhi — highest in dataset
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-// Crime raw scores from crime_data.json — same dataset as Dart client
-const CITY_CRIME_RAW = {
-  'visakhapatnam':2800,'vijayawada':4500,'guntur':4100,'nellore':3200,'kurnool':4800,
-  'itanagar':1500,'tawang':800,'pasighat':1200,'ziro':900,'bomdila':1000,
-  'guwahati':7500,'silchar':4200,'dibrugarh':4500,'jorhat':4000,'tezpur':3200,
-  'patna':9800,'gaya':7500,'muzaffarpur':8200,'bhagalpur':7800,'darbhanga':6500,
-  'raipur':5800,'bhilai':3500,'bilaspur':4200,'korba':4000,'durg':4100,
-  'panaji':2500,'margao':2800,'vasco':2700,'mapusa':2600,'ponda':2200,
-  'ahmedabad':15190,'surat':16750,'vadodara':5200,'rajkot':5500,'bhavnagar':3800,
-  'gurugram':8500,'gurgaon':8500,'faridabad':8200,'panipat':7800,'ambala':5500,'rohtak':7400,
-  'shimla':1800,'manali':1500,'dharamshala':1600,'solan':1700,'mandi':1900,
-  'ranchi':6200,'jamshedpur':5800,'dhanbad':7500,'bokaro':5100,'hazaribagh':4800,
-  'bengaluru':5500,'bangalore':5500,'mysuru':2500,'mysore':2500,
-  'hubballi':4200,'hubli':4200,'mangaluru':2800,'mangalore':2800,'belagavi':3200,'belgaum':3200,
-  'kochi':16040,'cochin':16040,'thiruvananthapuram':4500,'trivandrum':4500,
-  'kozhikode':4100,'calicut':4100,'thrissur':3200,'kollam':3500,
-  'indore':11090,'bhopal':8800,'gwalior':9200,'jabalpur':6800,'ujjain':5200,
-  'mumbai':3550,'bombay':3550,'pune':3370,'nagpur':8920,'thane':4500,'nashik':3000,
-  'imphal':8500,'shillong':4200,'aizawl':1500,'kohima':4500,'dimapur':7200,
-  'bhubaneswar':5200,'cuttack':6000,'rourkela':4800,'berhampur':4500,'sambalpur':4200,
-  'ludhiana':8500,'amritsar':8000,'jalandhar':7800,'patiala':6500,'bathinda':6200,
-  'jaipur':10260,'jodhpur':6800,'kota':6500,'udaipur':3800,'ajmer':5200,
-  'gangtok':1200,
-  'chennai':13250,'madras':13250,'coimbatore':2000,'kovai':2000,
-  'madurai':4800,'tiruchirappalli':2900,'trichy':2900,'salem':4100,
-  'hyderabad':3323,'warangal':4800,'nizamabad':4500,
-  'agartala':2200,
-  'lucknow':6000,'kanpur':7500,'ghaziabad':9000,'agra':6500,'varanasi':5800,
-  'dehradun':4500,'haridwar':3800,'rishikesh':3200,'haldwani':4800,
-  'kolkata':839,'calcutta':839,'howrah':4500,'durgapur':4200,'asansol':4800,'siliguri':4500,
-  'delhi':18320,'new delhi':18320,
-};
-
-// Extract city from full address (e.g. "New Delhi Railway Station, Delhi, India" -> "new delhi")
-function extractCity(locationName) {
-  const loc = locationName.toLowerCase();
-  const tokens = loc.split(',').map(t => t.trim());
-  // Sort keys longest-first to prefer "new delhi" over "delhi"
-  const sortedKeys = Object.keys(CITY_CRIME_RAW).sort((a, b) => b.length - a.length);
-  for (const key of sortedKeys) {
-    for (const token of tokens) {
-      if (token.includes(key)) return key;
-    }
-  }
-  // fallback: full string scan
-  for (const key of sortedKeys) {
-    if (loc.includes(key)) return key;
-  }
-  return null;
-}
-
-// Same sqrt+65 normalization as Dart client
+/** Compresses raw incident counts into a 0–65 base, leaving headroom for modifiers. */
 function normaliseCrimeBase(rawScore) {
   if (!rawScore || rawScore <= 0) return 0;
-  return Math.min(65, Math.round(Math.sqrt(rawScore / MAX_RAW_CRIME) * 65));
+  return Math.min(65, Math.round(Math.sqrt(rawScore / crimeData.maxRawScore) * 65));
 }
 
-// Look up crime score by city extracted from full address
 function crimeScoreForLocation(locationName) {
-  const city = extractCity(locationName);
-  if (!city) return 0;
-  const raw = CITY_CRIME_RAW[city] || 0;
-  return normaliseCrimeBase(raw);
+  return normaliseCrimeBase(crimeData.rawScoreFor(locationName));
 }
 
 function locationProfileScore(locationName, cityScore = 35) {
-  const loc = locationName.toLowerCase();
+  const loc = String(locationName).toLowerCase();
   let modifier = 0;
-  for (const a of HIGH_RISK_AREAS)   if (loc.includes(a)) { modifier = 20; break; }
-  for (const a of MEDIUM_RISK_AREAS) if (loc.includes(a)) { modifier = 10; break; }
-  for (const a of LOW_RISK_AREAS)    if (loc.includes(a)) { modifier = -15; break; }
-  
-  // Start from city baseline (or default 35) and add/sub modifier
-  return Math.min(100, Math.max(5, cityScore + modifier));
+  for (const a of HIGH_RISK_AREAS) if (loc.includes(a)) { modifier = 20; break; }
+  if (modifier === 0) for (const a of MEDIUM_RISK_AREAS) if (loc.includes(a)) { modifier = 10; break; }
+  if (modifier === 0) for (const a of LOW_RISK_AREAS) if (loc.includes(a)) { modifier = -15; break; }
+  return clamp(cityScore + modifier, 5, 100);
 }
 
 function temporalRiskScore(hour, dayOfWeek) {
   let s;
-  if (hour >= 23 || hour < 3)      s = 90;
-  else if (hour >= 3 && hour < 6)  s = 70;
-  else if (hour >= 6 && hour < 9)  s = 35;
-  else if (hour >= 9 && hour < 17) s = 20;
-  else if (hour >= 17 && hour < 20)s = 30;
+  if (hour >= 23 || hour < 3)       s = 90;
+  else if (hour >= 3 && hour < 6)   s = 70;
+  else if (hour >= 6 && hour < 9)   s = 35;
+  else if (hour >= 9 && hour < 17)  s = 20;
+  else if (hour >= 17 && hour < 20) s = 30;
   else                              s = 55;
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
   if (isWeekend && (hour >= 22 || hour < 4)) s = Math.min(100, s + 10);
@@ -108,7 +51,7 @@ function reportVelocityScore(reportCount) {
 
 function transportRiskScore(mode) {
   if (!mode) return 0;
-  const m = mode.toLowerCase();
+  const m = String(mode).toLowerCase();
   if (m.includes('walk') || m.includes('foot')) return 35;
   if (m.includes('bike') || m.includes('cycle')) return 28;
   if (m.includes('auto') || m.includes('rickshaw')) return 20;
@@ -121,33 +64,63 @@ function transportRiskScore(mode) {
 function behaviouralScore(flags = {}) {
   let score = 0;
   if (flags.prolongedInactivity) score += 35;
-  if (flags.geofenceBreach)      score += 50;
-  if (flags.geofenceBoost)       score += flags.geofenceBoost;
-  return Math.max(0, Math.min(100, score));
+
+  // Zone risk is counted once. `geofenceBoost` is the specific zone-type value
+  // (high-risk / restricted / safe); `geofenceBreach` is the generic "inside a
+  // flagged zone" signal. Adding both double-counted the same event.
+  const zoneScore = flags.geofenceBoost
+    ? flags.geofenceBoost
+    : (flags.geofenceBreach ? 50 : 0);
+
+  return clamp(score + zoneScore, 0, 100);
+}
+
+/**
+ * Resolves the hour-of-day to score against.
+ *
+ * Time-of-day risk is about the user's local night, not the server's. The
+ * client sends its own local hour (or UTC offset); the server clock is only a
+ * last resort and is reported as such in `meta.timeSource`.
+ */
+function resolveLocalTime({ now = new Date(), localHour, tzOffsetMinutes } = {}) {
+  if (Number.isInteger(localHour) && localHour >= 0 && localHour <= 23) {
+    return { hour: localHour, dayOfWeek: now.getUTCDay(), timeSource: 'client_hour' };
+  }
+  if (Number.isFinite(tzOffsetMinutes)) {
+    const shifted = new Date(now.getTime() + tzOffsetMinutes * 60000);
+    return { hour: shifted.getUTCHours(), dayOfWeek: shifted.getUTCDay(), timeSource: 'client_offset' };
+  }
+  return { hour: now.getHours(), dayOfWeek: now.getDay(), timeSource: 'server_clock' };
 }
 
 function severityLabel(score) {
-  if (score >= SOS_THRESHOLD)    return 'critical';
+  if (score >= SOS_THRESHOLD) return 'critical';
   if (score >= DANGER_THRESHOLD) return 'danger';
-  if (score >= CAUTION_THRESHOLD)return 'caution';
+  if (score >= CAUTION_THRESHOLD) return 'caution';
   return 'safe';
 }
 
+function displayNameFor(locationName) {
+  const entry = crimeData.lookup(locationName);
+  if (entry) return entry.city;
+  return String(locationName).split(',')[0].trim();
+}
+
 function buildExplanation(score, bd, reportCount, locationName, hour) {
-  const city = extractCity(locationName);
-  const displayName = city ? (city.charAt(0).toUpperCase() + city.slice(1)) : locationName.split(',')[0].trim();
+  const displayName = displayNameFor(locationName);
   const factors = [];
-  if (bd.crimeBase >= 50)       factors.push(`High historical crime rate in ${displayName}`);
-  else if (bd.crimeBase >= 30)  factors.push(`Moderate crime data for ${displayName}`);
-  else if (bd.crimeBase > 0)    factors.push(`Low crime baseline for ${displayName}`);
-  
-  if (bd.locationProfile > bd.crimeBase) factors.push('Specific area type increases risk level');
+
+  if (bd.crimeBase >= 50)      factors.push(`High historical crime rate in ${displayName}`);
+  else if (bd.crimeBase >= 30) factors.push(`Moderate crime data for ${displayName}`);
+  else if (bd.crimeBase > 0)   factors.push(`Low crime baseline for ${displayName}`);
+
+  if (bd.locationProfile > bd.crimeBase)      factors.push('Specific area type increases risk level');
   else if (bd.locationProfile < bd.crimeBase) factors.push('Specific area type provides safety buffer');
-  
-  if (bd.temporalRisk >= 70)    factors.push(`High-risk time of night (${hour}:00)`);
-  if (reportCount > 0)          factors.push(`${reportCount} recent incident report${reportCount>1?'s':''} nearby`);
-  if (bd.behavioural >= 30)     factors.push('Unusual movement or geofence breach detected');
-  if (bd.transportRisk >= 25)   factors.push('High vulnerability due to travel mode (walking/cycling)');
+
+  if (bd.temporalRisk >= 70)  factors.push(`High-risk time of night (${hour}:00 local)`);
+  if (reportCount > 0)        factors.push(`${reportCount} recent incident report${reportCount > 1 ? 's' : ''} nearby`);
+  if (bd.behavioural >= 30)   factors.push('Unusual movement or geofence breach detected');
+  if (bd.transportRisk >= 25) factors.push('High vulnerability due to travel mode (walking/cycling)');
 
   const severity = severityLabel(score);
   let reasoning;
@@ -161,44 +134,83 @@ function buildExplanation(score, bd, reportCount, locationName, hour) {
 }
 
 function assess(input) {
-  const { crimeRawScore=0, locationName='Unknown', reportCount=0, transportMode=null, flags={}, now=new Date() } = input;
-  const hour = now.getHours(), dayOfWeek = now.getDay();
+  const {
+    crimeRawScore = 0,
+    locationName = 'Unknown',
+    reportCount = 0,
+    transportMode = null,
+    flags = {},
+    now = new Date(),
+    localHour,
+    tzOffsetMinutes,
+  } = input;
+
+  const { hour, dayOfWeek, timeSource } = resolveLocalTime({ now, localHour, tzOffsetMinutes });
 
   const datasetScore = crimeScoreForLocation(locationName);
-  const mongoScore   = normaliseCrimeBase(crimeRawScore);
-  const l1 = datasetScore > 0 ? datasetScore : (mongoScore > 0 ? mongoScore : 35); 
-  const l2 = locationProfileScore(locationName, l1);
-  const l3 = temporalRiskScore(hour, dayOfWeek);
-  const l4 = reportVelocityScore(reportCount);
-  const l5 = behaviouralScore(flags);
-  const l6 = transportRiskScore(transportMode);
+  const dbScore = normaliseCrimeBase(crimeRawScore);
+  const crimeBase = datasetScore > 0 ? datasetScore : (dbScore > 0 ? dbScore : 35);
 
-  // Use additive modifier approach: crime is base (0-65), modifiers push toward 100
-  const timeMod      = Math.round((l3 - 15) * 0.25);   // neutral=15, late night adds ~+13
-  const reportMod    = Math.round(l4 * 0.20);           // report velocity adds up to +20
-  const behaviourMod = Math.round(l5 * 0.08);
-  const locMod       = l2 >= 70 ? 12 : l2 >= 50 ? 6 : l2 <= 20 ? -5 : 0; 
-  const transportMod = Math.round((l6 - 8) * 0.15);     // car=0 baseline
+  const locationProfile = locationProfileScore(locationName, crimeBase);
+  const temporalRisk = temporalRiskScore(hour, dayOfWeek);
+  const reportVelocity = reportVelocityScore(reportCount);
+  const behavioural = behaviouralScore(flags);
+  const transportRisk = transportRiskScore(transportMode);
 
-  const final_score  = Math.min(100, Math.max(5, l1 + timeMod + reportMod + behaviourMod + locMod + transportMod));
-  const severity = severityLabel(final_score);
-  const { reasoning, factors } = buildExplanation(final_score, {crimeBase:l1,locationProfile:l2,temporalRisk:l3,reportVelocity:l4,behavioural:l5,transportRisk:l6}, reportCount, locationName, hour);
+  // Crime is the base (0–65); everything else is a bounded modifier.
+  const timeMod = Math.round((temporalRisk - 15) * 0.25);
+  const reportMod = Math.round(reportVelocity * 0.20);
+  const behaviourMod = Math.round(behavioural * 0.08);
+  const locMod = locationProfile >= 70 ? 12 : locationProfile >= 50 ? 6 : locationProfile <= 20 ? -5 : 0;
+  const transportMod = Math.round((transportRisk - 8) * 0.15);
+
+  const score = clamp(crimeBase + timeMod + reportMod + behaviourMod + locMod + transportMod, 5, 100);
+  const breakdown = { crimeBase, locationProfile, temporalRisk, recentReports: reportVelocity, behavioural, transportRisk };
+  const { reasoning, factors } = buildExplanation(score, breakdown, reportCount, locationName, hour);
+
+  // An automatic SOS needs something to have *happened*. Crime statistics plus a
+  // late hour describe a place, not an emergency: on their own they score
+  // walking through a large city at night at 100, which would broadcast a
+  // distress alert to a user's contacts every night they walked home. A high
+  // score still shows the warning UI — it just does not dial out by itself
+  // unless the user is stationary when they shouldn't be, has entered a flagged
+  // zone, or there are fresh incident reports nearby.
+  const situationalSignal =
+    Boolean(flags.prolongedInactivity) ||
+    Boolean(flags.geofenceBreach) ||
+    (flags.geofenceBoost || 0) > 0 ||
+    reportCount > 0;
 
   return {
-    score: final_score, severity, reasoning,
-    shouldTriggerSos: final_score >= SOS_THRESHOLD,
+    score,
+    severity: severityLabel(score),
+    reasoning,
+    shouldTriggerSos: score >= SOS_THRESHOLD && situationalSignal,
+    sosSuppressed: score >= SOS_THRESHOLD && !situationalSignal,
     riskFactors: factors,
-    breakdown: { 
-      crimeBase: l1, 
-      locationProfile: l2, 
-      temporalRisk: l3, 
-      reportVelocity: l4, // Keep for backward compatibility if needed, but we'll prioritize new keys
-      recentReports: l4, 
-      behavioural: l5,
-      transportRisk: l6
+    breakdown,
+    meta: {
+      reportCount,
+      hour,
+      dayOfWeek,
+      timeSource,
+      situationalSignal,
+      location: locationName,
+      transportMode,
+      computedAt: now.toISOString(),
     },
-    meta: { reportCount, hour, dayOfWeek, location:locationName, transportMode, computedAt:now.toISOString() },
   };
 }
 
-module.exports = { assess, extractCity, SOS_THRESHOLD, DANGER_THRESHOLD, CAUTION_THRESHOLD };
+module.exports = {
+  assess,
+  extractCity: crimeData.extractCity,
+  normaliseCrimeBase,
+  temporalRiskScore,
+  behaviouralScore,
+  resolveLocalTime,
+  severityLabel,
+  SOS_THRESHOLD,
+  DANGER_THRESHOLD,
+  CAUTION_THRESHOLD,
+};

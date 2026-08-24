@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'services/auth_store.dart';
 import 'services/session_service.dart';
+import 'services/tracking_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/profile_setup_screen.dart';
-import 'screens/sos_screen.dart';
 import 'theme/app_theme.dart';
-import 'services/location_tracking_service.dart';
 
 // Global navigator key — lets background tracking push SOS from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -13,9 +13,15 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Start background location tracking (5-min intervals)
-  // If AI detects critical danger, auto-launches SOS from anywhere in the app
-  LocationTrackingService().startTracking();
+  // When the backend rejects a stored token, drop the session and return to
+  // the login screen rather than leaving the app in a half-signed-in state.
+  AuthStore.onUnauthorized = () {
+    TrackingService.instance.stopAll();
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  };
 
   runApp(const AtlasWatchApp());
 }
@@ -44,6 +50,11 @@ class EntryGate extends StatelessWidget {
     try {
       final loggedIn = await session.isLoggedIn();
       if (!loggedIn) return const LoginScreen();
+
+      // Background tracking starts only once there is a session to attach the
+      // readings to — and only after the user has granted location access.
+      TrackingService.instance.subscribe(TrackingService.ambientKey);
+
       final profileComplete = await session.isProfileComplete();
       if (!profileComplete) return const ProfileSetupScreen(isEditMode: false);
       return const DashboardScreen();

@@ -9,7 +9,9 @@
                 "Jagadamba Junction": 400,
                 "Siripuram": 350,
                 "Maharanipeta": 300
-            }
+            },
+            "lat": 17.6868,
+            "lng": 83.2185
         },
         "Vijayawada": {
             "risk": "Medium",
@@ -20,7 +22,9 @@
                 "Governorpet": 400,
                 "Satyanarayanapuram": 300,
                 "Bhavanipuram": 450
-            }
+            },
+            "lat": 16.5062,
+            "lng": 80.648
         },
         "Guntur": {
             "risk": "Medium",
@@ -31,7 +35,9 @@
                 "Vidyanagar": 400,
                 "Pattabhipuram": 350,
                 "Lalapet": 400
-            }
+            },
+            "lat": 16.3067,
+            "lng": 80.4365
         },
         "Nellore": {
             "risk": "Low",
@@ -42,7 +48,9 @@
                 "Trunk Road": 500,
                 "Vedayapalem": 350,
                 "Pogathota": 300
-            }
+            },
+            "lat": 14.4426,
+            "lng": 79.9865
         },
         "Kurnool": {
             "risk": "Medium",
@@ -53,7 +61,9 @@
                 "Park Road": 450,
                 "Gayathri Estate": 350,
                 "Venkatramana Colony": 400
-            }
+            },
+            "lat": 15.8281,
+            "lng": 78.0373
         }
     },
     "Arunachal Pradesh": {
@@ -66,7 +76,9 @@
                 "Niti Vihar": 150,
                 "Bank Tinali": 300,
                 "Chandranagar": 200
-            }
+            },
+            "lat": 27.0844,
+            "lng": 93.6053
         },
         "Tawang": {
             "risk": "Low",
@@ -77,7 +89,9 @@
                 "Nehru Market": 120,
                 "Circuit House Area": 80,
                 "Monastery Area": 50
-            }
+            },
+            "lat": 27.5861,
+            "lng": 91.8594
         },
         "Pasighat": {
             "risk": "Low",
@@ -88,7 +102,9 @@
                 "Mirku": 120,
                 "High Region": 100,
                 "GTC": 130
-            }
+            },
+            "lat": 28.0665,
+            "lng": 95.3275
         },
         "Ziro": {
             "risk": "Low",
@@ -99,7 +115,9 @@
                 "Hong Village": 80,
                 "Hari Village": 90,
                 "Siiro": 70
-            }
+            },
+            "lat": 27.5946,
+            "lng": 93.8443
         },
         "Bomdila": {
             "risk": "Low",
@@ -110,7 +128,9 @@
                 "Sera": 120,
                 "Singchung": 100,
                 "Rupa": 110
-            }
+            },
+            "lat": 27.2645,
+            "lng": 92.4159
         }
     },
     "Assam": {
@@ -123,7 +143,9 @@
                 "Ganeshguri": 900,
                 "Dispur": 800,
                 "Chandmari": 700
-            }
+            },
+            "lat": 26.1158,
+            "lng": 91.7086
         },
         "Silchar": {
             "risk": "Medium",
@@ -134,7 +156,9 @@
                 "Meherpur": 400,
                 "Sadarghat": 550,
                 "Rangirkhari": 450
-            }
+            },
+            "lat": 24.817,
+            "lng": 92.8023
         },
         "Dibrugarh": {
             "risk": "Medium",
@@ -145,7 +169,9 @@
                 "Khaliamari": 400,
                 "Jalan Nagar": 350,
                 "Mancotta Road": 500
-            }
+            },
+            "lat": 27.4728,
+            "lng": 94.912
         },
         "Jorhat": {
             "risk": "Medium",
@@ -156,7 +182,9 @@
                 "Baruah Chariali": 450,
                 "Choladhora": 400,
                 "Titabar": 350
-            }
+            },
+            "lat": 26.7509,
+            "lng": 94.2037
         },
         "Tezpur": {
             "risk": "Low",
@@ -167,7 +195,9 @@
                 "Mahabhairab": 300,
                 "Poruwa": 250,
                 "Dekargaon": 300
-            }
+            },
+            "lat": 26.6528,
+            "lng": 92.7926
         }
     },
     "Bihar": {
@@ -180,7 +210,9 @@
                 "Bailey Road": 1100,
                 "Patliputra Colony": 1000,
                 "Boring Road": 1300
-            }
+            },
+            "lat": 25.5941,
+            "lng": 85.1376
         },
         "Gaya": {
             "risk": "High",
@@ -191,7 +223,9 @@
                 "Chowk": 1100,
                 "Delha": 1000,
                 "Manpur": 900
-            }
+            },
+            "lat": 24.7914,
+            "lng": 85.0002
         },
         "Muzaffarpur": {
             "risk": "High",
@@ -202,7 +236,9 @@
                 "Brahmpura": 900,
                 "Aghoria Bazar": 800,
                 "Motijheel": 1200
-            }
+            },
+            "lat": 26.1197,
+            "lng": 85.391
         },
         "Bhagalpur": {
             "risk": "High",
@@ -213,7 +249,9 @@
                 "Tilkamanjhi": 900,
                 "Ishakchak": 850,
                 "Mojahidpur": 950
-            }
+            },
+            "lat": 25.2425,
+            "lng": 87.0118
         },
         "Darbhanga": {
             "risk": "Medium",
@@ -224,7 +262,9 @@
                 "Beta": 700,
                 "Kadirabad": 750,
                 "Laxmisagar": 600
-            }
+            },
+            "lat": 26.1118,
+            "lng": 85.896
         }
     },
     "Chhattisgarh": {
@@ -237,7 +277,9 @@
                 "Shankar Nagar": 500,
                 "Telibandha": 650,
                 "Tatibandh": 550
-            }
+            },
+            "lat": 21.2514,
+            "lng": 81.6296
         },
         "Bhilai": {
             "risk": "Low",
@@ -248,7 +290,9 @@
                 "Supela": 600,
                 "Risali": 350,
                 "Sector 6": 450
-            }
+            },
+            "lat": 21.1938,
+            "lng": 81.3509
         },
         "Bilaspur": {
             "risk": "Medium",
@@ -259,7 +303,9 @@
                 "Sarkanda": 550,
                 "Link Road": 400,
                 "Civil Lines": 500
-            }
+            },
+            "lat": 22.0797,
+            "lng": 82.1409
         },
         "Korba": {
             "risk": "Medium",
@@ -270,7 +316,9 @@
                 "Kosabadi": 400,
                 "Rampur": 350,
                 "Balco": 300
-            }
+            },
+            "lat": 22.3569,
+            "lng": 82.6807
         },
         "Durg": {
             "risk": "Medium",
@@ -281,7 +329,9 @@
                 "Indira Market": 600,
                 "Ganjpara": 550,
                 "Green Chowk": 450
-            }
+            },
+            "lat": 21.1904,
+            "lng": 81.2849
         }
     },
     "Goa": {
@@ -294,7 +344,9 @@
                 "Fontainhas": 250,
                 "Campal": 300,
                 "Patto": 400
-            }
+            },
+            "lat": 15.4909,
+            "lng": 73.8278
         },
         "Margao": {
             "risk": "Low",
@@ -305,7 +357,9 @@
                 "Aquem": 250,
                 "Navelim": 280,
                 "Borda": 320
-            }
+            },
+            "lat": 15.2832,
+            "lng": 73.9862
         },
         "Vasco da Gama": {
             "risk": "Low",
@@ -316,7 +370,9 @@
                 "Vaddem": 350,
                 "Chicalim": 250,
                 "Dabolim": 300
-            }
+            },
+            "lat": 15.3991,
+            "lng": 73.8125
         },
         "Mapusa": {
             "risk": "Low",
@@ -327,7 +383,9 @@
                 "Cmm": 280,
                 "Dangui Colony": 260,
                 "Ansabhat": 240
-            }
+            },
+            "lat": 15.5945,
+            "lng": 73.8166
         },
         "Ponda": {
             "risk": "Low",
@@ -338,7 +396,9 @@
                 "Khadpabandh": 200,
                 "Curti": 180,
                 "Farmagudi": 220
-            }
+            },
+            "lat": 15.4026,
+            "lng": 74.0182
         }
     },
     "Gujarat": {
@@ -351,7 +411,9 @@
                 "Maninagar": 2000,
                 "Gota": 1800,
                 "Vastrapur": 1600
-            }
+            },
+            "lat": 23.0225,
+            "lng": 72.5714
         },
         "Surat": {
             "risk": "High",
@@ -362,7 +424,9 @@
                 "Varachha": 3000,
                 "Piplod": 1500,
                 "Rander": 2200
-            }
+            },
+            "lat": 21.1702,
+            "lng": 72.8311
         },
         "Vadodara": {
             "risk": "Medium",
@@ -373,7 +437,9 @@
                 "Fatehgunj": 800,
                 "Manjalpur": 1000,
                 "Gotri": 700
-            }
+            },
+            "lat": 22.3072,
+            "lng": 73.1812
         },
         "Rajkot": {
             "risk": "Medium",
@@ -384,7 +450,9 @@
                 "Raiya Road": 900,
                 "Bhaktinagar": 1100,
                 "Mavdi": 1000
-            }
+            },
+            "lat": 22.3039,
+            "lng": 70.8022
         },
         "Bhavnagar": {
             "risk": "Low",
@@ -395,7 +463,9 @@
                 "Sardar Nagar": 400,
                 "Subhashnagar": 700,
                 "Kumbharwada": 900
-            }
+            },
+            "lat": 21.7645,
+            "lng": 72.1519
         }
     },
     "Haryana": {
@@ -408,7 +478,9 @@
                 "Sohna Road": 1100,
                 "MG Road": 1300,
                 "Udyog Vihar": 900
-            }
+            },
+            "lat": 28.4595,
+            "lng": 77.0266
         },
         "Faridabad": {
             "risk": "High",
@@ -419,7 +491,9 @@
                 "Old Faridabad": 1100,
                 "Surajkund": 800,
                 "Ballabgarh": 1300
-            }
+            },
+            "lat": 28.4089,
+            "lng": 77.3178
         },
         "Panipat": {
             "risk": "High",
@@ -430,7 +504,9 @@
                 "Sector 12": 800,
                 "Tehsil Camp": 1100,
                 "Sanauli Road": 950
-            }
+            },
+            "lat": 29.3909,
+            "lng": 76.9635
         },
         "Ambala": {
             "risk": "Medium",
@@ -441,7 +517,9 @@
                 "Sector 7": 500,
                 "Prem Nagar": 650,
                 "Jagadhri Gate": 750
-            }
+            },
+            "lat": 30.3782,
+            "lng": 76.7767
         },
         "Rohtak": {
             "risk": "High",
@@ -452,7 +530,9 @@
                 "Sector 2": 850,
                 "Quilla Road": 1000,
                 "Civil Lines": 700
-            }
+            },
+            "lat": 28.8955,
+            "lng": 76.6066
         }
     },
     "Himachal Pradesh": {
@@ -465,7 +545,9 @@
                 "Chotta Shimla": 200,
                 "New Shimla": 180,
                 "Kasumpti": 220
-            }
+            },
+            "lat": 31.1048,
+            "lng": 77.1734
         },
         "Manali": {
             "risk": "Low",
@@ -476,7 +558,9 @@
                 "Vashisht": 150,
                 "Aleo": 180,
                 "Prini": 120
-            }
+            },
+            "lat": 32.2396,
+            "lng": 77.1887
         },
         "Dharamshala": {
             "risk": "Low",
@@ -487,7 +571,9 @@
                 "Sidhbari": 180,
                 "Yol": 150,
                 "Dari": 170
-            }
+            },
+            "lat": 32.219,
+            "lng": 76.3239
         },
         "Solan": {
             "risk": "Low",
@@ -498,7 +584,9 @@
                 "Chambaghat": 150,
                 "Saproon": 190,
                 "Rabon": 160
-            }
+            },
+            "lat": 30.9084,
+            "lng": 77.0999
         },
         "Mandi": {
             "risk": "Low",
@@ -509,7 +597,9 @@
                 "Bhiuli": 190,
                 "Khaliyar": 210,
                 "Sauli Khad": 220
-            }
+            },
+            "lat": 31.5892,
+            "lng": 76.9182
         }
     },
     "Jharkhand": {
@@ -522,7 +612,9 @@
                 "Harmu": 600,
                 "Morabadi": 500,
                 "Ratu Road": 900
-            }
+            },
+            "lat": 23.3441,
+            "lng": 85.3096
         },
         "Jamshedpur": {
             "risk": "Medium",
@@ -533,7 +625,9 @@
                 "Telco": 500,
                 "Kadma": 650,
                 "Sonari": 550
-            }
+            },
+            "lat": 22.8046,
+            "lng": 86.2029
         },
         "Dhanbad": {
             "risk": "High",
@@ -544,7 +638,9 @@
                 "Saraidhela": 900,
                 "Jharia": 1200,
                 "Bartand": 700
-            }
+            },
+            "lat": 23.7957,
+            "lng": 86.4304
         },
         "Bokaro": {
             "risk": "Medium",
@@ -555,7 +651,9 @@
                 "Sector 1": 500,
                 "Co-operative Colony": 450,
                 "Sector 9": 550
-            }
+            },
+            "lat": 23.6693,
+            "lng": 86.1511
         },
         "Hazaribagh": {
             "risk": "Medium",
@@ -566,7 +664,9 @@
                 "Okhni": 400,
                 "Korrah": 550,
                 "Pugmil": 480
-            }
+            },
+            "lat": 23.9962,
+            "lng": 85.3629
         }
     },
     "Karnataka": {
@@ -579,7 +679,9 @@
                 "Whitefield": 1100,
                 "Jayanagar": 500,
                 "Malleswaram": 600
-            }
+            },
+            "lat": 12.9716,
+            "lng": 77.5946
         },
         "Mysuru": {
             "risk": "Low",
@@ -590,7 +692,9 @@
                 "Saraswathipuram": 500,
                 "Vijayanagar": 600,
                 "Kuvempunagar": 450
-            }
+            },
+            "lat": 12.2958,
+            "lng": 76.6394
         },
         "Hubballi": {
             "risk": "Medium",
@@ -601,7 +705,9 @@
                 "Old Hubli": 1000,
                 "Navanagar": 600,
                 "Gokul Road": 750
-            }
+            },
+            "lat": 15.3647,
+            "lng": 75.124
         },
         "Mangaluru": {
             "risk": "Low",
@@ -612,7 +718,9 @@
                 "Hampankatta": 600,
                 "Urwa": 350,
                 "Valencia": 500
-            }
+            },
+            "lat": 12.9141,
+            "lng": 74.856
         },
         "Belagavi": {
             "risk": "Low",
@@ -623,7 +731,9 @@
                 "Shahapur": 700,
                 "Hindwadi": 550,
                 "Vadgaon": 650
-            }
+            },
+            "lat": 15.8497,
+            "lng": 74.4977
         }
     },
     "Kerala": {
@@ -636,7 +746,9 @@
                 "Fort Kochi": 1600,
                 "Palarivattom": 1400,
                 "Vyttila": 1700
-            }
+            },
+            "lat": 9.9312,
+            "lng": 76.2673
         },
         "Thiruvananthapuram": {
             "risk": "Medium",
@@ -647,7 +759,9 @@
                 "Vellayambalam": 550,
                 "Thampanoor": 700,
                 "Kazhakkoottam": 650
-            }
+            },
+            "lat": 8.5241,
+            "lng": 76.9366
         },
         "Kozhikode": {
             "risk": "Medium",
@@ -658,7 +772,9 @@
                 "Nadakkavu": 450,
                 "Eranhipalam": 400,
                 "Medical College": 550
-            }
+            },
+            "lat": 11.2588,
+            "lng": 75.7804
         },
         "Thrissur": {
             "risk": "Low",
@@ -669,7 +785,9 @@
                 "Patturaikkal": 350,
                 "Ollur": 450,
                 "Punkunnam": 380
-            }
+            },
+            "lat": 10.5276,
+            "lng": 76.2144
         },
         "Kollam": {
             "risk": "Low",
@@ -680,7 +798,9 @@
                 "Kadappakada": 450,
                 "Tangasseri": 350,
                 "Polayathode": 420
-            }
+            },
+            "lat": 8.8932,
+            "lng": 76.6141
         }
     },
     "Madhya Pradesh": {
@@ -693,7 +813,9 @@
                 "Rajwada": 1500,
                 "Bhawarkua": 1100,
                 "Mhow Naka": 900
-            }
+            },
+            "lat": 22.7196,
+            "lng": 75.8577
         },
         "Bhopal": {
             "risk": "High",
@@ -704,7 +826,9 @@
                 "New Market": 1000,
                 "Kolar Road": 900,
                 "Bairagarh": 950
-            }
+            },
+            "lat": 23.2599,
+            "lng": 77.4126
         },
         "Gwalior": {
             "risk": "High",
@@ -715,7 +839,9 @@
                 "Morar": 1100,
                 "Thatipur": 900,
                 "Hazira": 1200
-            }
+            },
+            "lat": 26.2183,
+            "lng": 78.1828
         },
         "Jabalpur": {
             "risk": "Medium",
@@ -726,7 +852,9 @@
                 "Sadar": 900,
                 "Adhartal": 850,
                 "Gorakhpur": 750
-            }
+            },
+            "lat": 23.1815,
+            "lng": 79.9864
         },
         "Ujjain": {
             "risk": "Medium",
@@ -737,7 +865,9 @@
                 "Nanakheda": 600,
                 "Rishi Nagar": 550,
                 "Agar Road": 650
-            }
+            },
+            "lat": 23.1765,
+            "lng": 75.7885
         }
     },
     "Maharashtra": {
@@ -750,7 +880,9 @@
                 "Bandra": 900,
                 "Juhu": 600,
                 "Dadar": 800
-            }
+            },
+            "lat": 19.076,
+            "lng": 72.8777
         },
         "Pune": {
             "risk": "Low",
@@ -761,7 +893,9 @@
                 "Hinjewadi": 900,
                 "Kothrud": 500,
                 "Viman Nagar": 600
-            }
+            },
+            "lat": 18.5204,
+            "lng": 73.8567
         },
         "Nagpur": {
             "risk": "High",
@@ -772,7 +906,9 @@
                 "Sadar": 1800,
                 "Mahal": 2000,
                 "Itwari": 2200
-            }
+            },
+            "lat": 21.1458,
+            "lng": 79.0882
         },
         "Thane": {
             "risk": "Medium",
@@ -783,7 +919,9 @@
                 "Vartak Nagar": 900,
                 "Kopri": 700,
                 "Majiwada": 950
-            }
+            },
+            "lat": 19.2183,
+            "lng": 72.9781
         },
         "Nashik": {
             "risk": "Low",
@@ -794,7 +932,9 @@
                 "Satpur": 800,
                 "Indira Nagar": 500,
                 "Nashik Road": 700
-            }
+            },
+            "lat": 19.9975,
+            "lng": 73.7898
         }
     },
     "Manipur": {
@@ -807,7 +947,9 @@
                 "Lamphelpat": 900,
                 "Mantripukhri": 800,
                 "Singjamei": 950
-            }
+            },
+            "lat": 24.817,
+            "lng": 93.9368
         },
         "Churachandpur": {
             "risk": "Medium",
@@ -818,7 +960,9 @@
                 "Old Bazaar": 750,
                 "Zenhang Lamka": 650,
                 "Rengkai": 700
-            }
+            },
+            "lat": 24.3364,
+            "lng": 93.6707
         },
         "Thoubal": {
             "risk": "Medium",
@@ -829,7 +973,9 @@
                 "Yairipok": 650,
                 "Khongjom": 550,
                 "Lilong": 750
-            }
+            },
+            "lat": 24.6401,
+            "lng": 93.9933
         },
         "Kakching": {
             "risk": "Low",
@@ -840,7 +986,9 @@
                 "Wabagai": 300,
                 "Hiyanglam": 280,
                 "Sora": 320
-            }
+            },
+            "lat": 24.4984,
+            "lng": 93.9678
         },
         "Ukhrul": {
             "risk": "Medium",
@@ -851,7 +999,9 @@
                 "Tangrei": 500,
                 "Viewland": 450,
                 "Awontang": 480
-            }
+            },
+            "lat": 25.1111,
+            "lng": 94.3582
         }
     },
     "Meghalaya": {
@@ -864,7 +1014,9 @@
                 "Polo": 450,
                 "Laban": 400,
                 "Mawlai": 550
-            }
+            },
+            "lat": 25.5788,
+            "lng": 91.8933
         },
         "Tura": {
             "risk": "Low",
@@ -875,7 +1027,9 @@
                 "Araimile": 300,
                 "Dakopgre": 280,
                 "Ringrey": 320
-            }
+            },
+            "lat": 25.5141,
+            "lng": 90.203
         },
         "Jowai": {
             "risk": "Low",
@@ -886,7 +1040,9 @@
                 "Khimmusniang": 280,
                 "Panaliar": 250,
                 "Chutwakhu": 270
-            }
+            },
+            "lat": 25.4526,
+            "lng": 92.203
         },
         "Nongpoh": {
             "risk": "Low",
@@ -897,7 +1053,9 @@
                 "Umling": 150,
                 "Byrnihat": 220,
                 "Umden": 160
-            }
+            },
+            "lat": 25.908,
+            "lng": 91.8688
         },
         "Williamnagar": {
             "risk": "Low",
@@ -908,7 +1066,9 @@
                 "Kusimkolgre": 140,
                 "Dengagar": 130,
                 "Songsak": 160
-            }
+            },
+            "lat": 25.4983,
+            "lng": 90.6276
         }
     },
     "Mizoram": {
@@ -921,7 +1081,9 @@
                 "Chanmari": 180,
                 "Mission Veng": 150,
                 "Vaivakawn": 170
-            }
+            },
+            "lat": 23.7271,
+            "lng": 92.7176
         },
         "Lunglei": {
             "risk": "Low",
@@ -932,7 +1094,9 @@
                 "Chanmari": 130,
                 "Electric Veng": 140,
                 "Zotlang": 110
-            }
+            },
+            "lat": 22.8844,
+            "lng": 92.7302
         },
         "Champhai": {
             "risk": "Low",
@@ -943,7 +1107,9 @@
                 "Kahrawt": 100,
                 "Bethel": 90,
                 "Electric Veng": 130
-            }
+            },
+            "lat": 23.4759,
+            "lng": 93.3293
         },
         "Kolasib": {
             "risk": "Low",
@@ -954,7 +1120,9 @@
                 "Project Veng": 90,
                 "Saidan": 80,
                 "Hmar Veng": 85
-            }
+            },
+            "lat": 24.2186,
+            "lng": 92.6841
         },
         "Serchhip": {
             "risk": "Low",
@@ -965,7 +1133,9 @@
                 "Thenzawl": 80,
                 "Bungtlang": 70,
                 "Keitum": 60
-            }
+            },
+            "lat": 23.2872,
+            "lng": 92.839
         }
     },
     "Nagaland": {
@@ -978,7 +1148,9 @@
                 "High School": 450,
                 "Boc": 550,
                 "Lerie": 400
-            }
+            },
+            "lat": 25.6751,
+            "lng": 94.1086
         },
         "Dimapur": {
             "risk": "High",
@@ -989,7 +1161,9 @@
                 "Duncan Basti": 750,
                 "Nagarjan": 850,
                 "Chumukedima": 700
-            }
+            },
+            "lat": 25.8629,
+            "lng": 93.7538
         },
         "Mokokchung": {
             "risk": "Low",
@@ -1000,7 +1174,9 @@
                 "Dilong": 200,
                 "Penli": 220,
                 "Sungkomen": 180
-            }
+            },
+            "lat": 26.3236,
+            "lng": 94.5126
         },
         "Tuensang": {
             "risk": "Low",
@@ -1011,7 +1187,9 @@
                 "Hakchang": 180,
                 "Helipong": 150,
                 "Chare": 170
-            }
+            },
+            "lat": 26.2796,
+            "lng": 94.8214
         },
         "Wokha": {
             "risk": "Low",
@@ -1022,7 +1200,9 @@
                 "Longsa": 160,
                 "Englan": 140,
                 "Sanis": 150
-            }
+            },
+            "lat": 26.103,
+            "lng": 94.269
         }
     },
     "Odisha": {
@@ -1035,7 +1215,9 @@
                 "Patia": 650,
                 "Jayadev Vihar": 550,
                 "Nayapalli": 620
-            }
+            },
+            "lat": 20.2961,
+            "lng": 85.8245
         },
         "Cuttack": {
             "risk": "Medium",
@@ -1046,7 +1228,9 @@
                 "College Square": 600,
                 "Chauliaganj": 750,
                 "Ranihat": 650
-            }
+            },
+            "lat": 20.4625,
+            "lng": 85.8828
         },
         "Rourkela": {
             "risk": "Medium",
@@ -1057,7 +1241,9 @@
                 "Basanti Colony": 450,
                 "Koel Nagar": 550,
                 "Chhend": 480
-            }
+            },
+            "lat": 22.2604,
+            "lng": 84.8536
         },
         "Berhampur": {
             "risk": "Medium",
@@ -1068,7 +1254,9 @@
                 "Kamapalli": 450,
                 "Aska Road": 550,
                 "Gosaninuagam": 400
-            }
+            },
+            "lat": 19.3149,
+            "lng": 84.7941
         },
         "Sambalpur": {
             "risk": "Medium",
@@ -1079,7 +1267,9 @@
                 "Dhanupali": 400,
                 "Khetrajpur": 550,
                 "VSS Marg": 420
-            }
+            },
+            "lat": 21.4669,
+            "lng": 83.9812
         }
     },
     "Punjab": {
@@ -1092,7 +1282,9 @@
                 "Model Town": 1000,
                 "Chaura Bazar": 1100,
                 "Dugri": 850
-            }
+            },
+            "lat": 30.901,
+            "lng": 75.8573
         },
         "Amritsar": {
             "risk": "High",
@@ -1103,7 +1295,9 @@
                 "Civil Lines": 700,
                 "Lawrence Road": 900,
                 "Majitha Road": 850
-            }
+            },
+            "lat": 31.634,
+            "lng": 74.8723
         },
         "Jalandhar": {
             "risk": "High",
@@ -1114,7 +1308,9 @@
                 "Adarsh Nagar": 800,
                 "Rama Mandi": 850,
                 "Nakodar Road": 750
-            }
+            },
+            "lat": 31.326,
+            "lng": 75.5762
         },
         "Patiala": {
             "risk": "Medium",
@@ -1125,7 +1321,9 @@
                 "Urban Estate": 600,
                 "Tripuri": 750,
                 "Baradari": 550
-            }
+            },
+            "lat": 30.3398,
+            "lng": 76.3869
         },
         "Bathinda": {
             "risk": "Medium",
@@ -1136,7 +1334,9 @@
                 "Kamla Nehru Colony": 550,
                 "Bhatti Road": 620,
                 "Ajit Road": 580
-            }
+            },
+            "lat": 30.211,
+            "lng": 74.9455
         }
     },
     "Rajasthan": {
@@ -1149,7 +1349,9 @@
                 "Raja Park": 1000,
                 "Vaishali Nagar": 1200,
                 "Mansarovar": 1150
-            }
+            },
+            "lat": 26.9124,
+            "lng": 75.7873
         },
         "Jodhpur": {
             "risk": "Medium",
@@ -1160,7 +1362,9 @@
                 "Shastri Nagar": 750,
                 "Paota": 650,
                 "Mandore": 600
-            }
+            },
+            "lat": 26.2389,
+            "lng": 73.0243
         },
         "Kota": {
             "risk": "Medium",
@@ -1171,7 +1375,9 @@
                 "Vigyan Nagar": 750,
                 "Station Area": 800,
                 "Kunhari": 600
-            }
+            },
+            "lat": 25.2138,
+            "lng": 75.8648
         },
         "Udaipur": {
             "risk": "Low",
@@ -1182,7 +1388,9 @@
                 "Ashok Nagar": 450,
                 "Sector 14": 420,
                 "Sukher": 480
-            }
+            },
+            "lat": 24.5854,
+            "lng": 73.7125
         },
         "Ajmer": {
             "risk": "Medium",
@@ -1193,7 +1401,9 @@
                 "Adarsh Nagar": 550,
                 "Makhupura": 450,
                 "Pushkar Road": 520
-            }
+            },
+            "lat": 26.4499,
+            "lng": 74.6399
         }
     },
     "Sikkim": {
@@ -1206,7 +1416,9 @@
                 "Tadong": 180,
                 "Sichey": 140,
                 "Burtuk": 120
-            }
+            },
+            "lat": 27.3389,
+            "lng": 88.6065
         },
         "Namchi": {
             "risk": "Low",
@@ -1217,7 +1429,9 @@
                 "Kopchey": 90,
                 "Jorethang Road": 110,
                 "Singithang": 80
-            }
+            },
+            "lat": 27.1668,
+            "lng": 88.361
         },
         "Geyzing": {
             "risk": "Low",
@@ -1228,7 +1442,9 @@
                 "Pelling Road": 80,
                 "Legship": 70,
                 "Tashiding": 60
-            }
+            },
+            "lat": 27.3005,
+            "lng": 88.2435
         },
         "Mangan": {
             "risk": "Low",
@@ -1239,7 +1455,9 @@
                 "Singhik": 70,
                 "Ringhim": 60,
                 "Chungthang": 90
-            }
+            },
+            "lat": 27.5029,
+            "lng": 88.5309
         },
         "Rangpo": {
             "risk": "Low",
@@ -1250,7 +1468,9 @@
                 "Majhitar": 110,
                 "Mining": 90,
                 "Bhasmey": 80
-            }
+            },
+            "lat": 27.1751,
+            "lng": 88.5298
         }
     },
     "Tamil Nadu": {
@@ -1263,7 +1483,9 @@
                 "Anna Nagar": 1000,
                 "Mylapore": 700,
                 "Velachery": 1200
-            }
+            },
+            "lat": 13.0827,
+            "lng": 80.2707
         },
         "Coimbatore": {
             "risk": "Low",
@@ -1274,7 +1496,9 @@
                 "Peelamedu": 400,
                 "Saibaba Colony": 350,
                 "Race Course": 250
-            }
+            },
+            "lat": 11.0168,
+            "lng": 76.9558
         },
         "Madurai": {
             "risk": "Medium",
@@ -1285,7 +1509,9 @@
                 "Simmakkal": 1000,
                 "Periyar": 1100,
                 "Mattuthavani": 900
-            }
+            },
+            "lat": 9.9252,
+            "lng": 78.1198
         },
         "Tiruchirappalli": {
             "risk": "Low",
@@ -1296,7 +1522,9 @@
                 "Cantonment": 500,
                 "KK Nagar": 600,
                 "Woraiyur": 700
-            }
+            },
+            "lat": 10.7905,
+            "lng": 78.7047
         },
         "Salem": {
             "risk": "Medium",
@@ -1307,7 +1535,9 @@
                 "Suramangalam": 900,
                 "Ammapet": 800,
                 "Shevapet": 1000
-            }
+            },
+            "lat": 11.6643,
+            "lng": 78.146
         }
     },
     "Telangana": {
@@ -1320,7 +1550,9 @@
                 "Gachibowli": 300,
                 "Hitech City": 250,
                 "Kukatpally": 450
-            }
+            },
+            "lat": 17.385,
+            "lng": 78.4867
         },
         "Warangal": {
             "risk": "Medium",
@@ -1331,7 +1563,9 @@
                 "Subedari": 500,
                 "Mattewada": 520,
                 "Nakkalagutta": 480
-            }
+            },
+            "lat": 17.9689,
+            "lng": 79.5941
         },
         "Nizamabad": {
             "risk": "Medium",
@@ -1342,7 +1576,9 @@
                 "Dubba": 400,
                 "Kamareddy Road": 480,
                 "Namdevwada": 420
-            }
+            },
+            "lat": 18.6725,
+            "lng": 78.0941
         },
         "Karimnagar": {
             "risk": "Medium",
@@ -1353,7 +1589,9 @@
                 "Geetha Nagar": 400,
                 "Kaman": 480,
                 "Vavilalapally": 420
-            }
+            },
+            "lat": 18.4386,
+            "lng": 79.1288
         },
         "Khammam": {
             "risk": "Medium",
@@ -1364,7 +1602,9 @@
                 "Gandhi Chowk": 480,
                 "Bank Colony": 380,
                 "Rotary Nagar": 420
-            }
+            },
+            "lat": 17.2473,
+            "lng": 80.1514
         }
     },
     "Tripura": {
@@ -1377,7 +1617,9 @@
                 "Ramnagar": 200,
                 "Battala": 280,
                 "Dhaleswar": 220
-            }
+            },
+            "lat": 23.8315,
+            "lng": 91.2868
         },
         "Dharmanagar": {
             "risk": "Low",
@@ -1388,7 +1630,9 @@
                 "Rajbari": 150,
                 "Sakaibari": 170,
                 "Chandrapur": 160
-            }
+            },
+            "lat": 24.3794,
+            "lng": 92.1691
         },
         "Udaipur": {
             "risk": "Low",
@@ -1399,7 +1643,9 @@
                 "Rajarbag": 190,
                 "Khowai Road": 150,
                 "Brahmabari": 140
-            }
+            },
+            "lat": 23.535,
+            "lng": 91.4883
         },
         "Kailashahar": {
             "risk": "Low",
@@ -1410,7 +1656,9 @@
                 "Gournagar": 140,
                 "Vidyapith": 130,
                 "Kubjar": 110
-            }
+            },
+            "lat": 24.3263,
+            "lng": 92.0164
         },
         "Belonia": {
             "risk": "Low",
@@ -1421,7 +1669,9 @@
                 "Subhash Nagar": 140,
                 "Bankar": 110,
                 "Sarasima": 100
-            }
+            },
+            "lat": 23.2505,
+            "lng": 91.4552
         }
     },
     "Uttar Pradesh": {
@@ -1434,7 +1684,9 @@
                 "Aliganj": 900,
                 "Indira Nagar": 1000,
                 "Chowk": 1200
-            }
+            },
+            "lat": 26.8467,
+            "lng": 80.9462
         },
         "Kanpur": {
             "risk": "High",
@@ -1445,7 +1697,9 @@
                 "Kakadeo": 1500,
                 "Kidwai Nagar": 1300,
                 "Govind Nagar": 1400
-            }
+            },
+            "lat": 26.4499,
+            "lng": 80.3319
         },
         "Ghaziabad": {
             "risk": "High",
@@ -1456,7 +1710,9 @@
                 "Kaushambi": 1000,
                 "Raj Nagar": 1500,
                 "Kavi Nagar": 1400
-            }
+            },
+            "lat": 28.6692,
+            "lng": 77.4538
         },
         "Agra": {
             "risk": "Medium",
@@ -1467,7 +1723,9 @@
                 "Sikandra": 1200,
                 "Kamla Nagar": 900,
                 "Dayalbagh": 700
-            }
+            },
+            "lat": 27.1767,
+            "lng": 78.0081
         },
         "Varanasi": {
             "risk": "Medium",
@@ -1478,7 +1736,9 @@
                 "Godowlia": 1200,
                 "Sigra": 900,
                 "Bhelupur": 1100
-            }
+            },
+            "lat": 25.3176,
+            "lng": 82.9739
         }
     },
     "Uttarakhand": {
@@ -1491,7 +1751,9 @@
                 "Dalanwala": 550,
                 "Clement Town": 450,
                 "Clock Tower": 650
-            }
+            },
+            "lat": 30.3165,
+            "lng": 78.0322
         },
         "Haridwar": {
             "risk": "Low",
@@ -1502,7 +1764,9 @@
                 "Ranipur": 450,
                 "Jawalsapur": 300,
                 "Shivalik Nagar": 380
-            }
+            },
+            "lat": 29.9457,
+            "lng": 78.1642
         },
         "Rishikesh": {
             "risk": "Low",
@@ -1513,7 +1777,9 @@
                 "Muni Ki Reti": 280,
                 "Triveni Ghat": 350,
                 "IDPL Colony": 320
-            }
+            },
+            "lat": 30.0869,
+            "lng": 78.2676
         },
         "Haldwani": {
             "risk": "Medium",
@@ -1524,7 +1790,9 @@
                 "Kaladhungi Road": 550,
                 "Pilikothi": 480,
                 "Heera Nagar": 520
-            }
+            },
+            "lat": 29.219,
+            "lng": 79.5126
         },
         "Roorkee": {
             "risk": "Medium",
@@ -1535,7 +1803,9 @@
                 "Ganeshpur": 450,
                 "Ramnagar": 400,
                 "Salempur": 350
-            }
+            },
+            "lat": 29.8543,
+            "lng": 77.888
         }
     },
     "West Bengal": {
@@ -1548,7 +1818,9 @@
                 "Ballygunge": 120,
                 "New Town": 180,
                 "Alipore": 80
-            }
+            },
+            "lat": 22.5726,
+            "lng": 88.3639
         },
         "Howrah": {
             "risk": "Medium",
@@ -1559,7 +1831,9 @@
                 "Liluah": 500,
                 "Belur": 480,
                 "Santragachi": 520
-            }
+            },
+            "lat": 22.5958,
+            "lng": 88.2636
         },
         "Durgapur": {
             "risk": "Medium",
@@ -1570,7 +1844,9 @@
                 "Bidhannagar": 450,
                 "Muchipara": 550,
                 "Sagarbhanga": 480
-            }
+            },
+            "lat": 23.5204,
+            "lng": 87.3119
         },
         "Asansol": {
             "risk": "Medium",
@@ -1581,7 +1857,9 @@
                 "Kalyanpur": 500,
                 "Raniganj": 650,
                 "Ukhra": 520
-            }
+            },
+            "lat": 23.6739,
+            "lng": 86.9524
         },
         "Siliguri": {
             "risk": "Medium",
@@ -1592,7 +1870,9 @@
                 "Pradhan Nagar": 500,
                 "Hakim Para": 480,
                 "Deshbandhu Para": 520
-            }
+            },
+            "lat": 26.7271,
+            "lng": 88.3953
         }
     },
     "Delhi": {
@@ -1605,7 +1885,9 @@
                 "Lajpat Nagar": 1800,
                 "Vasant Kunj": 1700,
                 "Karol Bagh": 2200
-            }
+            },
+            "lat": 28.6139,
+            "lng": 77.209
         }
     }
 }

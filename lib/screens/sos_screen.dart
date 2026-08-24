@@ -72,38 +72,46 @@ class _SosScreenState extends State<SosScreen>
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
-      // Log SOS to backend
+      // Raise the alert on the backend first. The server notifies the
+      // emergency contacts itself — the SMS composer below still needs the user
+      // to press send, which is not a safe assumption during an emergency, and
+      // is no assumption at all when the SOS was triggered automatically.
+      var serverAlerted = false;
+      var contactsNotified = 0;
       try {
-        final session = SessionService();
-        final email = await session.getEmail();
-        if (email != null) {
-          await BackendService.post(
-            '/sos',
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode({
-              'email'  : email,
-              'lat'    : position.latitude,
-              'lng'    : position.longitude,
-              'trigger': widget.autoTrigger ? 'ai_auto' : 'manual',
-              if (widget.aiDangerScore != null) 'aiScore': widget.aiDangerScore,
-            }),
-          );
+        final response = await BackendService.post(
+          '/sos',
+          body: json.encode({
+            'lat'    : position.latitude,
+            'lng'    : position.longitude,
+            'trigger': widget.autoTrigger ? 'ai_auto' : 'manual',
+            if (widget.aiDangerScore != null) 'aiScore': widget.aiDangerScore,
+          }),
+        );
+        if (response.statusCode == 200) {
+          serverAlerted = true;
+          final data = json.decode(response.body) as Map<String, dynamic>;
+          contactsNotified = (data['contactsNotified'] as num? ?? 0).toInt();
+        } else {
+          debugPrint('SOS backend rejected the alert: ${response.statusCode} ${response.body}');
         }
       } catch (e) {
-        debugPrint('SOS backend log failed: $e');
+        debugPrint('SOS backend call failed: $e');
       }
 
-      final contactService = ContactService();
-      final sessionService = SessionService();
-      final contacts = await contactService.getContacts();
-      final profile  = await sessionService.loadProfile();
+      final contacts = await ContactService().getContacts();
+      final profile  = await SessionService().loadProfile();
 
       List<String> recipients = contacts.map((c) => c.phone).toList();
 
       if (recipients.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No emergency contacts found. Please add some first!')),
+            SnackBar(
+              content: Text(serverAlerted
+                  ? 'SOS recorded, but you have no emergency contacts to notify. Add some now!'
+                  : 'No emergency contacts found. Please add some first!'),
+            ),
           );
         }
         setState(() => _isSending = false);
@@ -132,14 +140,19 @@ class _SosScreenState extends State<SosScreen>
         queryParameters: {'body': message},
       );
 
+      // Secondary channel: pre-fill the user's own SMS app when possible.
       if (await canLaunchUrl(smsUri)) {
         await launchUrl(smsUri);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not launch SMS app')),
-          );
-        }
+      } else if (mounted && !serverAlerted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch SMS app and the server could not be reached')),
+        );
+      }
+
+      if (mounted && serverAlerted && contactsNotified > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Alert sent to $contactsNotified emergency contact(s)')),
+        );
       }
 
       if (mounted) {
@@ -217,9 +230,9 @@ class _SosScreenState extends State<SosScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.red.withOpacity(0.4)),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,14 +295,14 @@ class _SosScreenState extends State<SosScreen>
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E1E1E),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.03)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
+                              color: Colors.blue.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12)),
                           child: Icon(Icons.volume_up_rounded,
                               color: Colors.blue.shade400, size: 24),
@@ -306,7 +319,7 @@ class _SosScreenState extends State<SosScreen>
                         )),
                         Switch.adaptive(
                           value: _playSiren,
-                          activeColor: Colors.blue.shade400,
+                          activeThumbColor: Colors.blue.shade400,
                           onChanged: (val) => setState(() => _playSiren = val),
                         ),
                       ],
@@ -331,9 +344,9 @@ class _SosScreenState extends State<SosScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: const Color(0xFF1A0000),
-            boxShadow: [BoxShadow(color: Colors.red.withOpacity(0.5),
+            boxShadow: [BoxShadow(color: Colors.red.withValues(alpha: 0.5),
                 blurRadius: 50, spreadRadius: 10)],
-            border: Border.all(color: Colors.red.withOpacity(0.6), width: 4),
+            border: Border.all(color: Colors.red.withValues(alpha: 0.6), width: 4),
           ),
         ),
         Column(mainAxisSize: MainAxisSize.min, children: [
@@ -355,11 +368,11 @@ class _SosScreenState extends State<SosScreen>
           shape: BoxShape.circle,
           color: _isSending ? Colors.grey.shade900 : const Color(0xFFE53935),
           boxShadow: [BoxShadow(
-            color: const Color(0xFFE53935).withOpacity(0.3),
+            color: const Color(0xFFE53935).withValues(alpha: 0.3),
             blurRadius: _isSending ? 0 : 40,
             spreadRadius: _isSending ? 0 : 10,
           )],
-          border: Border.all(color: Colors.white.withOpacity(0.1), width: 8),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 8),
         ),
         child: Center(
           child: _isSending

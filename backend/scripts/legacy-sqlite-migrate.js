@@ -1,3 +1,6 @@
+// Legacy one-shot import from the retired SQLite database into MongoDB.
+// Kept for reference only; sqlite3 is a devDependency, not a runtime one.
+const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -32,7 +35,7 @@ async function run() {
   const Profile = mongoose.model('Profile', profileSchema);
   const Contact = mongoose.model('Contact', contactSchema);
 
-  const db = new sqlite3.Database('./atlaswatch.db', sqlite3.OPEN_READONLY, (err) => {
+  const db = new sqlite3.Database(path.join(__dirname, '..', 'atlaswatch.db'), sqlite3.OPEN_READONLY, (err) => {
     if (err) return console.error('Failed to open sqlite DB:', err.message);
   });
 

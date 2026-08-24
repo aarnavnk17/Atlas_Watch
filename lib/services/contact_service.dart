@@ -1,6 +1,7 @@
 import 'dart:convert';
+
+import 'auth_store.dart';
 import 'backend_service.dart';
-import 'session_service.dart';
 
 class EmergencyContact {
   final String? id;
@@ -26,14 +27,12 @@ class EmergencyContact {
 }
 
 class ContactService {
-  final SessionService _session = SessionService();
-
   Future<List<EmergencyContact>> getContacts() async {
-    final email = await _session.getEmail();
-    if (email == null) return [];
+    if (!await AuthStore.hasSession()) return [];
 
     try {
-      final response = await BackendService.get('/contacts?email=$email');
+      // The backend returns the contacts belonging to the authenticated user.
+      final response = await BackendService.get('/contacts');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -52,15 +51,12 @@ class ContactService {
     String phone,
     String relationship,
   ) async {
-    final email = await _session.getEmail();
-    if (email == null) return false;
+    if (!await AuthStore.hasSession()) return false;
 
     try {
       final response = await BackendService.post(
         '/contacts',
-        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'email': email,
           'name': name,
           'phone': phone,
           'relationship': relationship,
@@ -90,8 +86,7 @@ class ContactService {
   ) async {
     try {
       final response = await BackendService.post(
-        '/contacts/$id', // We'll implement PUT/POST on backend for updates
-        headers: {'Content-Type': 'application/json'},
+        '/contacts/$id',
         body: jsonEncode({
           'name': name,
           'phone': phone,

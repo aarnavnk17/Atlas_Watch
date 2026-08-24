@@ -23,7 +23,6 @@ class _JourneyDetailsScreenState extends State<JourneyDetailsScreen> {
   final _endController = TextEditingController();
   final _referenceController = TextEditingController();
   String _mode = 'Car';
-  bool _loadingLocation = true;
 
   final MapController _mapController = MapController();
   LatLng? _previewLatLng;
@@ -71,7 +70,6 @@ class _JourneyDetailsScreenState extends State<JourneyDetailsScreen> {
     if (!mounted) return;
 
     setState(() {
-      _loadingLocation = false;
       if (result?.address != null) {
         _startController.text = result!.address!;
       }
@@ -129,7 +127,7 @@ class _JourneyDetailsScreenState extends State<JourneyDetailsScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E1E1E),
                       borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: Colors.white.withOpacity(0.03)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
                     ),
                     child: Column(
                       children: [
@@ -248,7 +246,7 @@ class _JourneyDetailsScreenState extends State<JourneyDetailsScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.blue.withOpacity(0.15) : const Color(0xFF2C2C2C),
+                  color: isSelected ? Colors.blue.withValues(alpha: 0.15) : const Color(0xFF2C2C2C),
                   shape: BoxShape.circle,
                   border: Border.all(color: isSelected ? Colors.blue : Colors.transparent, width: 1.5),
                 ),
@@ -276,7 +274,7 @@ class _JourneyDetailsScreenState extends State<JourneyDetailsScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -295,7 +293,7 @@ class _JourneyDetailsScreenState extends State<JourneyDetailsScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF121212),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -361,7 +359,7 @@ class _JourneyDetailsScreenState extends State<JourneyDetailsScreen> {
       color: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: Colors.white.withOpacity(0.05)),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: InkWell(
         onTap: onTap,

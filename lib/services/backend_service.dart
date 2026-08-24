@@ -1,118 +1,86 @@
-import 'dart:io';
+import 'dart:io' show Platform;
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-/// Helper to find a reachable backend URL and perform requests with fallbacks.
-/// Automatically detects and connects to backend across all device types.
+import 'auth_store.dart';
 
+/// HTTP entry point for every backend call.
+///
+/// The base URL is configured, not discovered. An earlier version probed a list
+/// of private network addresses (192.168.1.1, 10.0.0.1, …) and used whichever
+/// host answered first — on an untrusted network that means posting the user's
+/// credentials and live location to a stranger's server.
+///
+/// Override per build with:
+///   flutter run --dart-define=API_BASE_URL=https://api.example.com
 class BackendService {
-  static const Duration _probeTimeout = Duration(seconds: 2);
   static const Duration _requestTimeout = Duration(seconds: 15);
-  static String? _workingBaseUrl;
 
-  /// Comprehensive list of backend candidates to try, in priority order.
-  /// Works across Android emulators, iOS simulators, physical devices, and web.
-  static List<String> get _candidates {
-    final List<String> list = [];
+  /// Compile-time override; empty when not supplied.
+  static const String _configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
 
-    if (kIsWeb) {
-      list.add('http://localhost:3000');
-      return list;
+  static String get baseUrl {
+    if (_configuredBaseUrl.isNotEmpty) return _configuredBaseUrl;
+
+    // Debug-only conveniences for the standard local setups.
+    if (kDebugMode) {
+      if (kIsWeb) return 'http://localhost:3000';
+      if (Platform.isAndroid) return 'http://10.0.2.2:3000'; // Android emulator host loopback
+      return 'http://localhost:3000';
     }
 
-    // Android Emulator - tries standard loopback first
-    if (Platform.isAndroid) {
-      list.addAll([
-        'http://10.0.2.2:3000', // Reverted to default port as per user request
-        'http://10.0.2.2:5000',
-        'http://10.0.2.2:8000',
-      ]);
-    }
-
-    // iOS Simulator
-    if (Platform.isIOS) {
-      list.addAll([
-        'http://localhost:3000', // iOS simulator → localhost
-        'http://127.0.0.1:3000',
-      ]);
-    }
-
-    // Physical device - tries common local IPs (192.168.x.x, 10.x.x.x ranges)
-    // These cover most home/office networks
-    list.addAll([
-      'http://192.168.1.1:3000',
-      'http://192.168.1.5:3000',
-      'http://192.168.1.100:3000',
-      'http://192.168.0.1:3000',
-      'http://10.0.0.1:3000',
-      'http://10.0.0.100:3000',
-      'http://172.20.10.1:3000', // Common for some networks
-      'http://127.0.0.1:3000',
-      'http://localhost:3000',
-    ]);
-
-    return list;
-  }
-
-  /// Automatically finds a working backend URL by testing connectivity.
-  /// Caches the result for future requests.
-  static Future<String> _findWorkingBase() async {
-    if (_workingBaseUrl != null) return _workingBaseUrl!;
-
-    // Try each candidate URL
-    for (final candidate in _candidates) {
-      try {
-        final uri = Uri.parse('$candidate/');
-        final response = await http.get(uri).timeout(_probeTimeout);
-
-        // Success - any response means connection works
-        _workingBaseUrl = candidate;
-        debugPrint('✓ Backend found at: $candidate');
-        return _workingBaseUrl!;
-      } catch (_) {
-        // Connection failed, try next candidate
-        debugPrint('✗ Backend not at: $candidate');
-      }
-    }
-
-    // If nothing works, log a warning and use localhost as fallback
-    debugPrint(
-      '⚠ Warning: Could not find working backend. Using http://localhost:3000 as fallback.',
+    throw StateError(
+      'API_BASE_URL is not set. Build with '
+      '--dart-define=API_BASE_URL=https://your-backend.example.com',
     );
-    _workingBaseUrl = 'http://localhost:3000';
-    return _workingBaseUrl!;
   }
 
-  static Future<http.Response> get(
-    String path, {
-    Map<String, String>? headers,
-  }) async {
-    final base = await _findWorkingBase();
-    final uri = Uri.parse(base + path);
-    return http.get(uri, headers: headers).timeout(_requestTimeout);
+  /// Kept for callers that need the host (multipart uploads).
+  static Future<String> getBaseUrl() async => baseUrl;
+
+  static Future<Map<String, String>> authHeaders({bool json = true}) async {
+    final token = await AuthStore.token();
+    return {
+      if (json) 'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
   }
 
-  static Future<http.Response> post(
-    String path, {
-    Map<String, String>? headers,
-    Object? body,
-  }) async {
-    final base = await _findWorkingBase();
-    final uri = Uri.parse(base + path);
-    debugPrint('HTTP POST: $uri');
-    return http.post(uri, headers: headers, body: body).timeout(_requestTimeout);
-  }
+  static Future<http.Response> get(String path, {Map<String, String>? headers}) =>
+      _send(() async => http.get(
+            Uri.parse(baseUrl + path),
+            headers: {...await authHeaders(json: false), ...?headers},
+          ));
 
-  static Future<http.Response> delete(
-    String path, {
-    Map<String, String>? headers,
-  }) async {
-    final base = await _findWorkingBase();
-    final uri = Uri.parse(base + path);
-    return http.delete(uri, headers: headers).timeout(_requestTimeout);
-  }
+  static Future<http.Response> post(String path, {Map<String, String>? headers, Object? body}) =>
+      _send(() async => http.post(
+            Uri.parse(baseUrl + path),
+            headers: {...await authHeaders(), ...?headers},
+            body: body,
+          ));
 
-  static Future<String> getBaseUrl() async {
-    return _findWorkingBase();
+  static Future<http.Response> put(String path, {Map<String, String>? headers, Object? body}) =>
+      _send(() async => http.put(
+            Uri.parse(baseUrl + path),
+            headers: {...await authHeaders(), ...?headers},
+            body: body,
+          ));
+
+  static Future<http.Response> delete(String path, {Map<String, String>? headers}) =>
+      _send(() async => http.delete(
+            Uri.parse(baseUrl + path),
+            headers: {...await authHeaders(), ...?headers},
+          ));
+
+  /// Runs a request and turns a rejected token into a clean sign-out.
+  static Future<http.Response> _send(Future<http.Response> Function() request) async {
+    final response = await request().timeout(_requestTimeout);
+    if (response.statusCode == 401) {
+      debugPrint('Backend rejected the session token — signing out.');
+      await AuthStore.clear();
+      AuthStore.onUnauthorized?.call();
+    }
+    return response;
   }
 }
